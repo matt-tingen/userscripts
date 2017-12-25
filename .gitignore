@@ -1,1 +1,2 @@
-dist
+dist/*.local.js
+node_modules

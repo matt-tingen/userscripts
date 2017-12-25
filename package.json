@@ -6,6 +6,10 @@
   "author": "Matt Tingen <matt.tingen@gmail.com>",
   "license": "MIT",
   "scripts": {
+    "precommit": "yarn build && git add dist",
     "build": "node index.js"
+  },
+  "devDependencies": {
+    "husky": "^0.14.3"
   }
 }

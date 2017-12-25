@@ -1,31 +1,49 @@
 const path = require('path');
 const fs = require('fs');
+const package = require('./package.json');
 
-function readScriptsFolder(err, entries) {
+function handleError(err) {
   if (err) {
     console.error(err);
-    return;
+    process.exit(1);
+  }
+}
+
+function joinUrl(...parts) {
+  return parts.join('/');
+}
+
+function getRepoUrl() {
+  const repo = package.repository;
+  let userAndName;
+
+  try {
+    userAndName = repo.match(/:([^.]+).git/)[1];
+  } catch (err) {
+    console.error('Package repository in unexpected format');
+    process.exit(1);
   }
 
+  return joinUrl('https://github.com', userAndName, 'raw', 'master');
+}
+
+function readScriptsFolder(err, entries) {
+  handleError(err);
   entries.forEach(readHeader);
 }
 
 function readHeader(entry) {
   const headerPath = path.resolve(scriptsDir, entry, 'header.js');
   fs.readFile(headerPath, (err, buffer) => {
-    if (err) {
-      console.error(err);
-      return;
-    }
-
+    handleError(err);
     writeUserscript(buffer.toString(), entry);
   });
 }
 
-function addInclude(contents, requirePath) {
+function addInclude(contents, requireUrl) {
   // prettier-ignore
   const lines = [
-    `@require file://${requirePath}`,
+    `@require      ${requireUrl}`,
     '==/UserScript=='
   ]
     .map(line => `// ${line}`)
@@ -33,21 +51,26 @@ function addInclude(contents, requirePath) {
   return contents.replace(/^\/\/\s*==\/UserScript==$/m, lines);
 }
 
-function writeUserscript(contents, scriptDir) {
-  const requirePath = path.resolve(scriptsDir, scriptDir, 'index.js');
-  const newContents = addInclude(contents, requirePath);
-  const filename = `${scriptDir}.js`;
-  const outputPath = path.resolve(destPath, filename);
-  fs.writeFile(outputPath, newContents, err => {
-    if (err) {
-      console.error(err);
-      return;
-    }
+const prefixes = {
+  '': scriptDir => joinUrl(repoBaseUrl, 'src', scriptDir, 'index.js'),
+  '.local': scriptDir =>
+    `file://${path.resolve(scriptsDir, scriptDir, 'index.js')}`
+};
 
-    console.log(`wrote ${filename}`);
+function writeUserscript(contents, scriptDir) {
+  Object.entries(prefixes).forEach(([prefix, getRequireUrl]) => {
+    const requireUrl = getRequireUrl(scriptDir);
+    const newContents = addInclude(contents, requireUrl);
+    const filename = `${scriptDir}${prefix}.js`;
+    const outputPath = path.resolve(destPath, filename);
+    fs.writeFile(outputPath, newContents, err => {
+      handleError(err);
+      console.log(`wrote ${filename}`);
+    });
   });
 }
 
 const destPath = path.resolve(__dirname, 'dist');
 const scriptsDir = path.resolve(__dirname, 'src');
+const repoBaseUrl = getRepoUrl();
 fs.readdir(scriptsDir, readScriptsFolder);
