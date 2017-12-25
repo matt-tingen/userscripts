@@ -12,7 +12,7 @@ function readScriptsFolder(err, entries) {
 
 function readHeader(entry) {
   const headerPath = path.resolve(scriptsDir, entry, 'header.js');
-  fs.readFile(headerPath, function(err, buffer) {
+  fs.readFile(headerPath, (err, buffer) => {
     if (err) {
       console.error(err);
       return;
@@ -25,12 +25,10 @@ function readHeader(entry) {
 function addInclude(contents, requirePath) {
   // prettier-ignore
   const lines = [
-    '@require file://' + requirePath,
+    `@require file://${requirePath}`,
     '==/UserScript=='
   ]
-    .map(function(line) {
-      return '// ' + line;
-    })
+    .map(line => `// ${line}`)
     .join('\n');
   return contents.replace(/^\/\/\s*==\/UserScript==$/m, lines);
 }
@@ -38,15 +36,15 @@ function addInclude(contents, requirePath) {
 function writeUserscript(contents, scriptDir) {
   const requirePath = path.resolve(scriptsDir, scriptDir, 'index.js');
   const newContents = addInclude(contents, requirePath);
-  const filename = scriptDir + '.js';
+  const filename = `${scriptDir}.js`;
   const outputPath = path.resolve(destPath, filename);
-  fs.writeFile(outputPath, newContents, function(err) {
+  fs.writeFile(outputPath, newContents, err => {
     if (err) {
       console.error(err);
       return;
     }
 
-    console.log('wrote ' + filename);
+    console.log(`wrote ${filename}`);
   });
 }
 
