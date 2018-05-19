@@ -13,4 +13,10 @@
   document.arrive('.WatchNext-still-container', function() {
     this.click();
   });
+
+  document.arrive('.nf-flat-button-primary.nf-icon-button', function() {
+    if (this.textContent.startsWith('Next episode')) {
+      this.click();
+    }
+  })
 })();
