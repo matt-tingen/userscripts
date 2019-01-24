@@ -1,20 +1,26 @@
 (function() {
+  const delayedArrive = (selector, callback) => {
+    document.arrive(selector, function() {
+      setTimeout(callback.bind(this), 0)
+    });
+  }
+
   // Avoid the "Are you still watching" interruption.
-  document.arrive('.interrupter-actions', function() {
+  delayedArrive('.interrupter-actions', function() {
     this.firstElementChild.click();
   });
 
   // Skip show intros.
-  document.arrive('.skip-credits', function() {
-    this.firstElementChild.click();
+  delayedArrive('.skip-credits', function() {
+      this.firstElementChild.click();
   });
 
   // Play next episode when one completes.
-  document.arrive('.WatchNext-still-container', function() {
+  delayedArrive('.WatchNext-still-container', function() {
     this.click();
   });
 
-  document.arrive('.nf-flat-button-primary.nf-icon-button', function() {
+  delayedArrive('.nf-flat-button-primary.nf-icon-button', function() {
     if (this.textContent.startsWith('Next episode')) {
       this.click();
     }
