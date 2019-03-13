@@ -1,7 +1,7 @@
 (function() {
   const delayedArrive = (selector, callback) => {
     document.arrive(selector, function() {
-      setTimeout(callback.bind(this), 0)
+      setTimeout(callback.bind(this), 100);
     });
   }
 
