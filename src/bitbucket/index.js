@@ -39,6 +39,26 @@
     return commitInfoCache[url];
   };
 
+  const getLineNumber = annotation => {
+    // Annotations are separated by blank lines in a <pre> tag.
+    const numPrevCommits = annotation.prevAll().length;
+    const lines = annotation
+      .parent()
+      .html()
+      .split('\n');
+    let lineIndex = 0;
+
+    // Scan through the lines until the provided annotation has been passed.
+    // That _index_ is the line _number_ of the provided annotation.
+    for (let commitsPassed = 0; commitsPassed <= numPrevCommits; lineIndex++) {
+      if (lines[lineIndex]) {
+        commitsPassed++;
+      }
+    }
+
+    return lineIndex;
+  };
+
   // https://docs.atlassian.com/aui/5.6.8/docs/icons.html
   const icon = $('<span>')
     .addClass(
@@ -50,7 +70,8 @@
   const annotations = $('.annotationdiv > pre > span');
 
   annotations.each((i, el) => {
-    const link = $(el).find('.cset');
+    const annotation = $(el);
+    const link = annotation.find('.cset');
     const url = link.attr('href');
 
     let hoverTimeout;
@@ -91,12 +112,18 @@
           .addClass('aui-icon-wait');
 
         const { parentHash } = await getCommitInfo(url);
+        const lineNumber = getLineNumber(annotation);
+
+        // Clicking the line number adds the appropriate hash to the URL which
+        // will be preserved when the pathname is replaced.
+        $(`.linenodiv > pre > a:nth-child(${lineNumber})`).click();
+
         location.pathname = location.pathname.replace(
           /\/annotate\/[^\/]+/,
           `/annotate/${parentHash}`,
         );
       });
 
-    $(el).append(' ', transitiveBlameButton);
+    annotation.append(' ', transitiveBlameButton);
   });
 })();
