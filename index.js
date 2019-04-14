@@ -23,8 +23,7 @@ function getRepoUrl() {
     console.error('Package repository in unexpected format');
     process.exit(1);
   }
-
-  return joinUrl('https://github.com', userAndName, 'raw', 'master');
+  return joinUrl('https://raw.githubusercontent.com', userAndName, 'master');
 }
 
 function readScriptsFolder(err, entries) {
@@ -54,7 +53,7 @@ function addInclude(contents, requireUrl) {
 const prefixes = {
   '': scriptDir => joinUrl(repoBaseUrl, 'src', scriptDir, 'index.js'),
   '.local': scriptDir =>
-    `file://${path.resolve(scriptsDir, scriptDir, 'index.js')}`
+    `file://${path.resolve(scriptsDir, scriptDir, 'index.js')}`,
 };
 
 function writeUserscript(contents, scriptDir) {

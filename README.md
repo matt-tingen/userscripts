@@ -11,8 +11,8 @@ Add userscripts to the extension using the contents of the files in the `dist` f
 **Warning**: These scripts are intended for my personal use and will auto-update which is a security risk if you don't fully trust me. To avoid this, add the commit hash to the `@require` e.g.
 
 ```diff
-- // @require      https://github.com/matt-tingen/userscripts/raw/master/src/netflix/index.js
-+ // @require      https://github.com/matt-tingen/userscripts/raw/63c7d92e60a940d997841fcc8f09be87760539db/src/netflix/index.js
+- // @require      https://raw.githubusercontent.com/matt-tingen/userscripts/master/src/netflix/index.js
++ // @require      https://raw.githubusercontent.com/matt-tingen/userscripts/63c7d92e60a940d997841fcc8f09be87760539db/src/netflix/index.js
 ```
 
 ## Development

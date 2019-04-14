@@ -6,5 +6,5 @@
 // @match        https://github.com/*
 // @grant        none
 // @require      https://code.jquery.com/jquery-3.3.1.slim.min.js
-// @require      https://github.com/matt-tingen/userscripts/raw/master/src/github/index.js
+// @require      https://raw.githubusercontent.com/matt-tingen/userscripts/master/src/github/index.js
 // ==/UserScript==

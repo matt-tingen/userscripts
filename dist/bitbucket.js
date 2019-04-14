@@ -5,5 +5,5 @@
 // @author       Matt Tingen
 // @match        https://bitbucket.org/*/annotate/*
 // @grant        none
-// @require      https://github.com/matt-tingen/userscripts/raw/master/src/bitbucket/index.js
+// @require      https://raw.githubusercontent.com/matt-tingen/userscripts/master/src/bitbucket/index.js
 // ==/UserScript==

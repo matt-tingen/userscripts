@@ -5,5 +5,5 @@
 // @author       Matt Tingen
 // @match        https://www.yelp.com/*
 // @grant        none
-// @require      https://github.com/matt-tingen/userscripts/raw/master/src/yelp/index.js
+// @require      https://raw.githubusercontent.com/matt-tingen/userscripts/master/src/yelp/index.js
 // ==/UserScript==
