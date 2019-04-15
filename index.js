@@ -26,28 +26,68 @@ function getRepoUrl() {
   return joinUrl('https://raw.githubusercontent.com', userAndName, 'master');
 }
 
-function readScriptsFolder(err, entries) {
+function processScriptsFolder(err, entries) {
   handleError(err);
-  entries.forEach(readHeader);
+  entries.forEach(processHeader);
 }
 
-function readHeader(entry) {
-  const headerPath = path.resolve(scriptsDir, entry, 'header.js');
-  fs.readFile(headerPath, (err, buffer) => {
-    handleError(err);
-    writeUserscript(buffer.toString(), entry);
+function processHeader(entry) {
+  const headerPath = path.resolve(scriptsDir, entry, 'header.json');
+  const headerJson = require(headerPath);
+  const updatedHeader = updateHeader(headerJson, entry);
+
+  Object.entries(prefixes).forEach(([prefix, getRequireUrl]) => {
+    const finalHeader = addHeaderValue(
+      updatedHeader,
+      'require',
+      getRequireUrl(entry),
+    );
+
+    writeUserscript(renderHeader(finalHeader), entry, prefix);
   });
 }
 
-function addInclude(contents, requireUrl) {
-  // prettier-ignore
-  const lines = [
-    `@require      ${requireUrl}`,
-    '==/UserScript=='
-  ]
-    .map(line => `// ${line}`)
-    .join('\n');
-  return contents.replace(/^\/\/\s*==\/UserScript==$/m, lines);
+function addHeaderValue(header, key, value) {
+  const existing = header[key];
+  const array = Array.isArray(existing) ? existing : existing ? [existing] : [];
+
+  return { ...header, [key]: [...array, value] };
+}
+
+const defaultHeader = {
+  author: package.author,
+  grant: 'none',
+};
+
+function updateHeader(header, scriptDir) {
+  return {
+    name: scriptDir,
+    ...defaultHeader,
+    ...header,
+  };
+}
+
+function getKeyValuePairs(header) {
+  const pairs = [];
+
+  Object.entries(header).forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+      pairs.push(...value.map(v => [key, v]));
+    } else {
+      pairs.push([key, value]);
+    }
+  });
+
+  return pairs;
+}
+
+function renderHeader(header) {
+  return [
+    '// ==UserScript==',
+    ...getKeyValuePairs(header).map(([key, value]) => `// @${key} ${value}`),
+    '// ==/UserScript==',
+    '',
+  ].join('\n');
 }
 
 const prefixes = {
@@ -56,20 +96,16 @@ const prefixes = {
     `file://${path.resolve(scriptsDir, scriptDir, 'index.js')}`,
 };
 
-function writeUserscript(contents, scriptDir) {
-  Object.entries(prefixes).forEach(([prefix, getRequireUrl]) => {
-    const requireUrl = getRequireUrl(scriptDir);
-    const newContents = addInclude(contents, requireUrl);
-    const filename = `${scriptDir}${prefix}.js`;
-    const outputPath = path.resolve(destPath, filename);
-    fs.writeFile(outputPath, newContents, err => {
-      handleError(err);
-      console.log(`wrote ${filename}`);
-    });
+function writeUserscript(contents, scriptDir, prefix) {
+  const filename = `${scriptDir}${prefix}.js`;
+  const outputPath = path.resolve(destPath, filename);
+  fs.writeFile(outputPath, contents, err => {
+    handleError(err);
+    console.log(`wrote ${filename}`);
   });
 }
 
 const destPath = path.resolve(__dirname, 'dist');
 const scriptsDir = path.resolve(__dirname, 'src');
 const repoBaseUrl = getRepoUrl();
-fs.readdir(scriptsDir, readScriptsFolder);
+fs.readdir(scriptsDir, processScriptsFolder);

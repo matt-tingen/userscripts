@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name         Yelp
-// @version      0.1
-// @description  Improve directions links
-// @author       Matt Tingen
-// @match        https://www.yelp.com/*
-// @grant        none
-// @require      https://raw.githubusercontent.com/matt-tingen/userscripts/master/src/yelp/index.js
+// @name yelp
+// @author Matt Tingen <matt.tingen@gmail.com>
+// @grant none
+// @description Improve directions links
+// @match https://www.yelp.com/*
+// @version 0.1
+// @require https://raw.githubusercontent.com/matt-tingen/userscripts/master/src/yelp/index.js
 // ==/UserScript==
