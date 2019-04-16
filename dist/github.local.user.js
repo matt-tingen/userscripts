@@ -1,6 +1,5 @@
 // ==UserScript==
 // @name GitHub
-// @downloadURL https://raw.githubusercontent.com/matt-tingen/userscripts/master/dist/github.user.js
 // @author Matt Tingen <matt.tingen@gmail.com>
 // @grant none
 // @description Convert textual branch references to links

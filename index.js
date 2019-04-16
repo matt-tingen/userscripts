@@ -31,19 +31,17 @@ function processScriptsFolder(err, entries) {
   entries.forEach(processHeader);
 }
 
-function processHeader(entry) {
-  const headerPath = path.resolve(scriptsDir, entry, 'header.json');
+function processHeader(name) {
+  const headerPath = path.resolve(scriptsDir, name, 'header.json');
   const headerJson = require(headerPath);
-  const updatedHeader = updateHeader(headerJson, entry);
+  const defaultedHeader = applyHeaderDefaults(headerJson, name);
 
-  Object.entries(prefixes).forEach(([prefix, getRequireUrl]) => {
-    const finalHeader = addHeaderValue(
-      updatedHeader,
-      'require',
-      getRequireUrl(entry),
-    );
+  buildModes.forEach(({ updateHeader, filenameSuffix = '' }) => {
+    const baseFilename = name + filenameSuffix;
+    const header = updateHeader(defaultedHeader, name);
+    const headerString = renderHeader(header);
 
-    writeUserscript(renderHeader(finalHeader), entry, prefix);
+    writeUserscript(baseFilename, headerString);
   });
 }
 
@@ -59,10 +57,9 @@ const defaultHeader = {
   grant: 'none',
 };
 
-function updateHeader(header, name) {
+function applyHeaderDefaults(header, name) {
   return {
     name,
-    downloadURL: joinUrl(repoBaseUrl, 'dist', `${name}.user.js`),
     ...defaultHeader,
     ...header,
   };
@@ -91,14 +88,30 @@ function renderHeader(header) {
   ].join('\n');
 }
 
-const prefixes = {
-  '': scriptDir => joinUrl(repoBaseUrl, 'src', scriptDir, 'index.js'),
-  '.local': scriptDir =>
-    `file://${path.resolve(scriptsDir, scriptDir, 'index.js')}`,
-};
+const buildModes = [
+  {
+    updateHeader: (header, name) => ({
+      ...addHeaderValue(
+        header,
+        'require',
+        joinUrl(repoBaseUrl, 'src', name, 'index.js'),
+      ),
+      downloadURL: joinUrl(repoBaseUrl, 'dist', `${name}.user.js`),
+    }),
+  },
+  {
+    filenameSuffix: '.local',
+    updateHeader: (header, name) =>
+      addHeaderValue(
+        header,
+        'require',
+        `file://${path.resolve(scriptsDir, name, 'index.js')}`,
+      ),
+  },
+];
 
-function writeUserscript(contents, scriptDir, prefix) {
-  const filename = `${scriptDir}${prefix}.user.js`;
+function writeUserscript(baseFilename, contents) {
+  const filename = `${baseFilename}.user.js`;
   const outputPath = path.resolve(destPath, filename);
   fs.writeFile(outputPath, contents, err => {
     handleError(err);
