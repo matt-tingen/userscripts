@@ -1,5 +1,5 @@
 {
   "description": "Transitive blame UI",
   "match": "https://bitbucket.org/*/annotate/*",
-  "version": "0.1"
+  "version": "1.0"
 }

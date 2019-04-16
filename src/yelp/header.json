@@ -1,5 +1,5 @@
 {
   "description": "Improve directions links",
   "match": "https://www.yelp.com/*",
-  "version": "0.1"
+  "version": "1.0"
 }

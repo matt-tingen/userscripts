@@ -7,5 +7,5 @@
 // @match https://github.com/*
 // @require https://code.jquery.com/jquery-3.3.1.slim.min.js
 // @require https://raw.githubusercontent.com/matt-tingen/userscripts/master/src/github/index.js
-// @version 0.1
+// @version 1.0
 // ==/UserScript==
