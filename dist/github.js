@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name github
+// @name GitHub
 // @downloadURL https://raw.githubusercontent.com/matt-tingen/userscripts/master/dist/github.js
 // @author Matt Tingen <matt.tingen@gmail.com>
 // @grant none

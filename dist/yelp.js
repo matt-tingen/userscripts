@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name yelp
+// @name Yelp
 // @downloadURL https://raw.githubusercontent.com/matt-tingen/userscripts/master/dist/yelp.js
 // @author Matt Tingen <matt.tingen@gmail.com>
 // @grant none

@@ -1,4 +1,5 @@
 {
+  "name": "BitBucket",
   "description": "Transitive blame UI",
   "match": "https://bitbucket.org/*/annotate/*",
   "version": "1.0"

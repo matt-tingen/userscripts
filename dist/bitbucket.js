@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name bitbucket
+// @name BitBucket
 // @downloadURL https://raw.githubusercontent.com/matt-tingen/userscripts/master/dist/bitbucket.js
 // @author Matt Tingen <matt.tingen@gmail.com>
 // @grant none
