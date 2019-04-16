@@ -62,7 +62,7 @@ const defaultHeader = {
 function updateHeader(header, name) {
   return {
     name,
-    downloadURL: joinUrl(repoBaseUrl, 'dist', `${name}.js`),
+    downloadURL: joinUrl(repoBaseUrl, 'dist', `${name}.user.js`),
     ...defaultHeader,
     ...header,
   };
@@ -98,7 +98,7 @@ const prefixes = {
 };
 
 function writeUserscript(contents, scriptDir, prefix) {
-  const filename = `${scriptDir}${prefix}.js`;
+  const filename = `${scriptDir}${prefix}.user.js`;
   const outputPath = path.resolve(destPath, filename);
   fs.writeFile(outputPath, contents, err => {
     handleError(err);
