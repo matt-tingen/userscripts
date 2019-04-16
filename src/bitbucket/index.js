@@ -1,4 +1,9 @@
 (function() {
+  const REPO_PATH = location.pathname.match(/^(?:\/[^\/]+){2}/)[0];
+  // The official API (https://api.bitbucket.org/2.0/) requires auth. This
+  // undocumented API appears to use the user's cookies.
+  const API_BASE = `https://bitbucket.org/!api/2.0/repositories${REPO_PATH}`;
+
   const ICON_SIZE = 10;
   const TITLE = 'View blame prior to this change';
   const styles = `
@@ -21,23 +26,22 @@
 
   const commitInfoCache = {};
 
-  const getCommitInfo = async url => {
-    if (!commitInfoCache[url]) {
-      const response = await fetch(url);
-      const html = await response.text();
-      const doc = $(html);
-
-      commitInfoCache[url] = {
-        parentHash: doc
-          .find('.commit-parents a:first-of-type')
-          .attr('href')
-          .match(/\/commits\/([a-f\d]{40})(?:$|\/|\?)/)[1],
-        commitMessage: doc.find('.commit-message > p:first-child').text(),
-      };
+  const getCommitInfo = async hash => {
+    if (!commitInfoCache[hash]) {
+      const response = await fetch(`${API_BASE}/commit/${hash}`);
+      commitInfoCache[hash] = response.json();
+      // commitInfoCache[hash] = {
+      //   parentHash: parseHashFromUrl(
+      //     doc.find('.commit-parents a:first-of-type').attr('href'),
+      //   ),
+      //   commitMessage: doc.find('.commit-message > p:first-child').text(),
+      // };
     }
 
-    return commitInfoCache[url];
+    return await commitInfoCache[hash];
   };
+
+  const parseHashFromUrl = url => url.match(/\/([a-f\d]{40})(?:$|\/|\?)/)[1];
 
   const getLineNumber = annotation => {
     // Annotations are separated by blank lines in a <pre> tag.
@@ -73,6 +77,7 @@
     const annotation = $(el);
     const link = annotation.find('.cset');
     const url = link.attr('href');
+    const hash = parseHashFromUrl(url);
 
     let hoverTimeout;
     let isTooltipInitialized = false;
@@ -80,9 +85,11 @@
       () => {
         hoverTimeout = setTimeout(async () => {
           if (!isTooltipInitialized) {
-            link.attr('title', (await getCommitInfo(url)).commitMessage).tipsy({
-              trigger: 'manual',
-            });
+            link
+              .attr('title', (await getCommitInfo(hash)).message.split('\n')[0])
+              .tipsy({
+                trigger: 'manual',
+              });
 
             if (hoverTimeout) {
               link.tipsy('show');
@@ -111,7 +118,7 @@
           .removeClass('aui-iconfont-devtools-browse-up')
           .addClass('aui-icon-wait');
 
-        const { parentHash } = await getCommitInfo(url);
+        const parentHash = (await getCommitInfo(hash)).parents[0].hash;
         const lineNumber = getLineNumber(annotation);
 
         // Clicking the line number adds the appropriate hash to the URL which
