@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name BitBucket
-// @author Matt Tingen <matt.tingen@gmail.com>
-// @grant none
-// @description Transitive blame UI
-// @match https://bitbucket.org/*/annotate/*
 // @version 1.0
-// @require https://raw.githubusercontent.com/matt-tingen/userscripts/master/src/bitbucket/index.js
+// @author Matt Tingen <matt.tingen@gmail.com>
+// @description Transitive blame UI
 // @downloadURL https://raw.githubusercontent.com/matt-tingen/userscripts/master/dist/bitbucket.user.js
+// @match https://bitbucket.org/*/annotate/*
+// @require https://raw.githubusercontent.com/matt-tingen/userscripts/master/src/bitbucket/index.js
+// @grant none
 // ==/UserScript==

@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs');
+const stable = require('stable');
 const package = require('./package.json');
 
 function handleError(err) {
@@ -79,10 +80,51 @@ function getKeyValuePairs(header) {
   return pairs;
 }
 
+const directivesOrder = [
+  'name',
+  'namespace',
+  'version',
+  'author',
+  'description',
+  'homepage',
+  'homepageURL',
+  'website ',
+  'source',
+  'icon',
+  'iconURL ',
+  'defaulticon',
+  'icon64 ',
+  'icon64URL',
+  'updateURL',
+  'downloadURL',
+  'supportURL',
+  'include',
+  'match',
+  'exclude',
+  'require',
+  'resource',
+  'connect',
+  'run-at',
+  'grant',
+  'noframes',
+  'unwrap',
+  'nocompat',
+];
+
+function sortDirectives(directives) {
+  // This sort must be stable to maintain the order among `@require`s.
+  return stable(
+    directives,
+    ([a], [b]) => directivesOrder.indexOf(a) - directivesOrder.indexOf(b),
+  );
+}
+
 function renderHeader(header) {
   return [
     '// ==UserScript==',
-    ...getKeyValuePairs(header).map(([key, value]) => `// @${key} ${value}`),
+    ...sortDirectives(getKeyValuePairs(header)).map(
+      ([key, value]) => `// @${key} ${value}`,
+    ),
     '// ==/UserScript==',
     '',
   ].join('\n');
