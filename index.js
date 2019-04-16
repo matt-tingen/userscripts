@@ -59,9 +59,10 @@ const defaultHeader = {
   grant: 'none',
 };
 
-function updateHeader(header, scriptDir) {
+function updateHeader(header, name) {
   return {
-    name: scriptDir,
+    name,
+    downloadURL: joinUrl(repoBaseUrl, 'dist', `${name}.js`),
     ...defaultHeader,
     ...header,
   };

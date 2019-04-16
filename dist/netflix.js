@@ -1,5 +1,6 @@
 // ==UserScript==
 // @name netflix
+// @downloadURL https://raw.githubusercontent.com/matt-tingen/userscripts/master/dist/netflix.js
 // @author Matt Tingen <matt.tingen@gmail.com>
 // @grant none
 // @description Skip the interruptions

@@ -1,5 +1,6 @@
 // ==UserScript==
 // @name bitbucket
+// @downloadURL https://raw.githubusercontent.com/matt-tingen/userscripts/master/dist/bitbucket.js
 // @author Matt Tingen <matt.tingen@gmail.com>
 // @grant none
 // @description Transitive blame UI
