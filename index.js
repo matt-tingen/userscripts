@@ -49,11 +49,14 @@ function processHeader(name) {
 }
 
 function asArray(value) {
-  return Array.isArray(value) ? value : value ? [value] : [];
+  return Array.isArray(value) ? value : [value];
 }
 
 function addHeaderValue(header, key, value) {
-  return { ...header, [key]: [...asArray(header[key]), ...asArray(value)] };
+  return {
+    ...header,
+    [key]: [...asArray(header[key]), ...asArray(value)].filter(Boolean),
+  };
 }
 
 const defaultHeader = {
@@ -67,6 +70,10 @@ function applyHeaderDefaults(header, name) {
     name,
     ...defaultHeader,
     ...header,
+    _meta: {
+      requireUtils: false,
+      ...header._meta,
+    },
   };
 }
 
@@ -135,24 +142,32 @@ function renderHeader(header) {
 }
 
 const buildModes = [
-  (name, header) => ({
+  (name, { _meta, ...header }) => ({
     header: {
-      ...addHeaderValue(
-        header,
-        'require',
-        joinUrl(repoBaseUrl, 'src', name, 'index.js'),
-      ),
-      downloadURL: joinUrl(repoBaseUrl, 'dist', `${name}.user.js`),
+      ...addHeaderValue(header, 'require', [
+        _meta.requireUtils && getRemoteUrl('utils', 'general.js'),
+        getRemoteUrl('src', name, 'index.js'),
+      ]),
+      downloadURL: getRemoteUrl('dist', `${name}.user.js`),
     },
   }),
-  (name, header) => ({
+  (name, { _meta, ...header }) => ({
     baseFilename: `${name}.local`,
     header: addHeaderValue(header, 'require', [
-      `file://${path.resolve(scriptsDir, name, 'index.js')}`,
-      `file://${path.resolve(utilsDir, 'local.js')}`,
+      _meta.requireUtils && getLocalUrl('utils', 'general.js'),
+      getLocalUrl('src', name, 'index.js'),
+      getLocalUrl('utils', 'local.js'),
     ]),
   }),
 ];
+
+function getLocalUrl(...parts) {
+  return `file://${path.resolve(__dirname, ...parts)}`;
+}
+
+function getRemoteUrl(...parts) {
+  return joinUrl(repoBaseUrl, ...parts);
+}
 
 function writeUserscript(baseFilename, contents) {
   const filename = `${baseFilename}.user.js`;

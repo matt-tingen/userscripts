@@ -9,7 +9,7 @@
   "scripts": {
     "precommit": "yarn build && git add dist",
     "build": "node index.js",
-    "start": "nodemon --watch src --watch utils -e js index.js"
+    "start": "nodemon --watch src --watch utils index.js"
   },
   "devDependencies": {
     "husky": "^0.14.3",

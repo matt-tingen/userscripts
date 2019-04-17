@@ -1,4 +1,6 @@
 (function() {
+  const { waitForClass } = window.__MJT_USERSCRIPTS__.utils;
+
   const REPO_PATH = location.pathname.match(/^(?:\/[^\/]+){2}/)[0];
   // The official API (https://api.bitbucket.org/2.0/) requires auth. This
   // undocumented API appears to use the user's cookies.
@@ -138,31 +140,15 @@
 
   // Word diffing occurs in JS and overwrites the lines' text. Wait until that
   // process is done (when the `word-diff` class is added).
-  const hasWordDiff = className => /(^| )word-diff($| )/g.test(className);
-
-  const diffObserver = new MutationObserver(mutations => {
-    mutations.forEach(mutation => {
-      const container = mutation.target;
-
-      if (!hasWordDiff(mutation.oldValue) && hasWordDiff(container.className)) {
-        $(container)
-          .find('.udiff-line:not(.common) > pre')
-          .each((i, line) => {
-            const firstTextNode = line.childNodes[0];
-            const newTextNode = document.createTextNode(
-              firstTextNode.wholeText.slice(1),
-            );
-            line.replaceChild(newTextNode, firstTextNode);
-          });
-      }
-    });
-  });
-
-  $('.refract-container').each((i, container) => {
-    diffObserver.observe(container, {
-      attributes: true,
-      attributeFilter: ['class'],
-      attributeOldValue: true,
-    });
+  waitForClass('word-diff', $('.refract-container').toArray(), container => {
+    $(container)
+      .find('.udiff-line:not(.common) > pre')
+      .each((i, line) => {
+        const firstTextNode = line.childNodes[0];
+        const newTextNode = document.createTextNode(
+          firstTextNode.wholeText.slice(1),
+        );
+        line.replaceChild(newTextNode, firstTextNode);
+      });
   });
 })();
