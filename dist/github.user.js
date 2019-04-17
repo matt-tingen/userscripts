@@ -2,7 +2,7 @@
 // @name GitHub
 // @namespace https://github.com/matt-tingen/userscripts
 // @version 1.0
-// @author Matt Tingen <matt.tingen@gmail.com>
+// @author Matt Tingen
 // @description Convert textual branch references to links
 // @downloadURL https://raw.githubusercontent.com/matt-tingen/userscripts/master/dist/github.user.js
 // @match https://github.com/*

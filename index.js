@@ -60,7 +60,7 @@ function addHeaderValue(header, key, value) {
 }
 
 const defaultHeader = {
-  author: package.author,
+  author: package.author.replace(/\s<.+/, ''),
   grant: 'none',
   namespace: package.homepage,
 };

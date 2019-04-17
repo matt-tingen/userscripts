@@ -2,7 +2,7 @@
 // @name Netflix
 // @namespace https://github.com/matt-tingen/userscripts
 // @version 1.0
-// @author Matt Tingen <matt.tingen@gmail.com>
+// @author Matt Tingen
 // @description Skip the interruptions
 // @downloadURL https://raw.githubusercontent.com/matt-tingen/userscripts/master/dist/netflix.user.js
 // @match https://www.netflix.com/*
