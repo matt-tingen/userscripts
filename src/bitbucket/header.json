@@ -1,6 +1,6 @@
 {
   "name": "BitBucket",
   "description": "Transitive blame UI",
-  "match": "https://bitbucket.org/*/annotate/*",
-  "version": "1.0"
+  "match": "https://bitbucket.org/*",
+  "version": "1.1"
 }
