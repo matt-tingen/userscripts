@@ -136,19 +136,48 @@
     annotation.append(' ', transitiveBlameButton);
   });
 
-  // Drop the +/- from diff lines to simplify copying
+  // Drop the +/- from diff lines to simplify copying.
+  const removeDiffNotation = line => {
+    const firstTextNode = line.childNodes[0];
+    const newTextNode = document.createTextNode(
+      firstTextNode.wholeText.slice(1),
+    );
+    line.replaceChild(newTextNode, firstTextNode);
+  };
 
-  // Word diffing occurs in JS and overwrites the lines' text. Wait until that
-  // process is done (when the `word-diff` class is added).
-  waitForClass('word-diff', $('.refract-container').toArray(), container => {
-    $(container)
-      .find('.udiff-line:not(.common) > pre')
-      .each((i, line) => {
-        const firstTextNode = line.childNodes[0];
-        const newTextNode = document.createTextNode(
-          firstTextNode.wholeText.slice(1),
+  // Not all lines will be processed for word-diff so do an initial pass
+  $('.udiff-line:not(.common) > .source').each((i, line) =>
+    removeDiffNotation(line),
+  );
+
+  // Word diffing occurs in JS and overwrites the lines' text.
+  waitForClass(
+    'word-diff',
+    $('.diff-content-container').toArray(),
+    container => {
+      //  The word diff processing works by finding the deletion -> addition
+      //  transition and re-adds the +/- symbol to all contiguous diff lines.
+      const transitionPoints = $(container).find(
+        '.udiff-line.deletion:not(.conflict)+.addition:not(.conflict)',
+      );
+      const affectedLines = transitionPoints;
+
+      transitionPoints.each((i, el) => {
+        const transitionPoint = $(el);
+
+        affectedLines.push(
+          ...transitionPoint.prevUntil('.common, .addition').toArray(),
         );
-        line.replaceChild(newTextNode, firstTextNode);
+        affectedLines.push(
+          ...transitionPoint.nextUntil('.common, .deletion').toArray(),
+        );
       });
-  });
+
+      $(affectedLines)
+        .find('.source')
+        .each((i, line) => {
+          removeDiffNotation(line);
+        });
+    },
+  );
 })();
