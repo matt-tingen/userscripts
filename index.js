@@ -37,20 +37,23 @@ function processHeader(name) {
   const headerJson = require(headerPath);
   const defaultedHeader = applyHeaderDefaults(headerJson, name);
 
-  buildModes.forEach(({ updateHeader, filenameSuffix = '' }) => {
-    const baseFilename = name + filenameSuffix;
-    const header = updateHeader(defaultedHeader, name);
+  buildModes.forEach(getBuildSettings => {
+    const { header, baseFilename = name } = getBuildSettings(
+      name,
+      defaultedHeader,
+    );
     const headerString = renderHeader(header);
 
     writeUserscript(baseFilename, headerString);
   });
 }
 
-function addHeaderValue(header, key, value) {
-  const existing = header[key];
-  const array = Array.isArray(existing) ? existing : existing ? [existing] : [];
+function asArray(value) {
+  return Array.isArray(value) ? value : value ? [value] : [];
+}
 
-  return { ...header, [key]: [...array, value] };
+function addHeaderValue(header, key, value) {
+  return { ...header, [key]: [...asArray(header[key]), ...asArray(value)] };
 }
 
 const defaultHeader = {
@@ -132,25 +135,23 @@ function renderHeader(header) {
 }
 
 const buildModes = [
-  {
-    updateHeader: (header, name) => ({
+  (name, header) => ({
+    header: {
       ...addHeaderValue(
         header,
         'require',
         joinUrl(repoBaseUrl, 'src', name, 'index.js'),
       ),
       downloadURL: joinUrl(repoBaseUrl, 'dist', `${name}.user.js`),
-    }),
-  },
-  {
-    filenameSuffix: '.local',
-    updateHeader: (header, name) =>
-      addHeaderValue(
-        header,
-        'require',
-        `file://${path.resolve(scriptsDir, name, 'index.js')}`,
-      ),
-  },
+    },
+  }),
+  (name, header) => ({
+    baseFilename: `${name}.local`,
+    header: addHeaderValue(header, 'require', [
+      `file://${path.resolve(scriptsDir, name, 'index.js')}`,
+      `file://${path.resolve(utilsDir, 'local.js')}`,
+    ]),
+  }),
 ];
 
 function writeUserscript(baseFilename, contents) {
@@ -164,5 +165,6 @@ function writeUserscript(baseFilename, contents) {
 
 const destPath = path.resolve(__dirname, 'dist');
 const scriptsDir = path.resolve(__dirname, 'src');
+const utilsDir = path.resolve(__dirname, 'utils');
 const repoBaseUrl = getRepoUrl();
 fs.readdir(scriptsDir, processScriptsFolder);

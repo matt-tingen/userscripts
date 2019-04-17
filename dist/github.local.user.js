@@ -7,5 +7,6 @@
 // @match https://github.com/*
 // @require https://code.jquery.com/jquery-3.3.1.slim.min.js
 // @require file:///Users/matttingen/Development/userscripts/src/github/index.js
+// @require file:///Users/matttingen/Development/userscripts/utils/local.js
 // @grant none
 // ==/UserScript==

@@ -6,5 +6,6 @@
 // @description Transitive blame UI
 // @match https://bitbucket.org/*/annotate/*
 // @require file:///Users/matttingen/Development/userscripts/src/bitbucket/index.js
+// @require file:///Users/matttingen/Development/userscripts/utils/local.js
 // @grant none
 // ==/UserScript==
