@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "main": "index.js",
   "repository": "git@github.com:matt-tingen/userscripts.git",
+  "homepage": "https://github.com/matt-tingen/userscripts",
   "author": "Matt Tingen <matt.tingen@gmail.com>",
   "license": "MIT",
   "scripts": {

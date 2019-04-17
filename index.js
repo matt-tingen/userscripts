@@ -56,6 +56,7 @@ function addHeaderValue(header, key, value) {
 const defaultHeader = {
   author: package.author,
   grant: 'none',
+  namespace: package.homepage,
 };
 
 function applyHeaderDefaults(header, name) {
