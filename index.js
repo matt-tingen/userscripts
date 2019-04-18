@@ -35,7 +35,7 @@ function processScriptsFolder(err, entries) {
 function processHeader(name) {
   const headerPath = path.resolve(scriptsDir, name, 'header.json');
   const headerJson = require(headerPath);
-  const defaultedHeader = applyHeaderDefaults(headerJson, name);
+  const defaultedHeader = prepHeader(headerJson, name);
 
   buildModes.forEach(getBuildSettings => {
     const { header, baseFilename = name } = getBuildSettings(
@@ -52,17 +52,11 @@ function asArray(value) {
   return Array.isArray(value) ? value : [value];
 }
 
-function addHeaderValue(header, key, value) {
-  return {
-    ...header,
-    [key]: [...asArray(header[key]), ...asArray(value)].filter(Boolean),
-  };
-}
-
 const defaultHeader = {
   author: package.author.replace(/\s<.+/, ''),
   grant: 'none',
   namespace: package.homepage,
+  require: [],
 };
 
 function applyHeaderDefaults(header, name) {
@@ -70,11 +64,17 @@ function applyHeaderDefaults(header, name) {
     name,
     ...defaultHeader,
     ...header,
-    _meta: {
-      requireUtils: false,
-      ...header._meta,
-    },
   };
+}
+
+function prepHeader(header, name) {
+  const defaulted = applyHeaderDefaults(header, name);
+
+  Object.getOwnPropertyNames(defaulted).forEach(key => {
+    defaulted[key] = asArray(defaulted[key]);
+  });
+
+  return defaulted;
 }
 
 function getKeyValuePairs(header) {
@@ -142,31 +142,46 @@ function renderHeader(header) {
 }
 
 const buildModes = [
-  (name, { _meta, ...header }) => ({
-    header: {
-      ...addHeaderValue(header, 'require', [
-        _meta.requireUtils && getRemoteUrl('utils', 'general.js'),
-        getRemoteUrl('src', name, 'index.js'),
-      ]),
-      downloadURL: getRemoteUrl('dist', `${name}.user.js`),
-    },
+  (name, header) => ({
+    header: updateRemoteHeader(header, name),
   }),
-  (name, { _meta, ...header }) => ({
+  (name, header) => ({
     baseFilename: `${name}.local`,
-    header: addHeaderValue(header, 'require', [
-      _meta.requireUtils && getLocalUrl('utils', 'general.js'),
-      getLocalUrl('src', name, 'index.js'),
-      getLocalUrl('utils', 'local.js'),
-    ]),
+    header: updateLocalHeader(header, name),
   }),
 ];
+
+function getRemoteUrl(...parts) {
+  return joinUrl(repoBaseUrl, ...parts);
+}
+
+function updateRemoteHeader(header, name) {
+  return {
+    ...header,
+    downloadURL: getRemoteUrl('dist', `${name}.user.js`),
+    require: [...header.require, `/src/${name}/index.js`].map(url =>
+      updateAppRequire(getRemoteUrl, url),
+    ),
+  };
+}
 
 function getLocalUrl(...parts) {
   return `file://${path.resolve(__dirname, ...parts)}`;
 }
 
-function getRemoteUrl(...parts) {
-  return joinUrl(repoBaseUrl, ...parts);
+function updateLocalHeader(header, name) {
+  return {
+    ...header,
+    require: [
+      ...header.require,
+      `/src/${name}/index.js`,
+      `/utils/local.js`,
+    ].map(url => updateAppRequire(getLocalUrl, url)),
+  };
+}
+
+function updateAppRequire(resolveParts, url) {
+  return url.startsWith('/') ? resolveParts(...url.split('/').slice(1)) : url;
 }
 
 function writeUserscript(baseFilename, contents) {
@@ -180,6 +195,5 @@ function writeUserscript(baseFilename, contents) {
 
 const destPath = path.resolve(__dirname, 'dist');
 const scriptsDir = path.resolve(__dirname, 'src');
-const utilsDir = path.resolve(__dirname, 'utils');
 const repoBaseUrl = getRepoUrl();
 fs.readdir(scriptsDir, processScriptsFolder);

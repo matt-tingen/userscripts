@@ -3,7 +3,5 @@
   "description": "Transitive blame UI",
   "match": "https://bitbucket.org/*",
   "version": "2.0",
-  "_meta": {
-    "requireUtils": true
-  }
+  "require": "/utils/general.js"
 }
