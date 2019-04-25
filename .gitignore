@@ -1,2 +1,2 @@
-dist/*.local.js
+dist/*.local.user.js
 node_modules

@@ -5,8 +5,8 @@
 // @author Matt Tingen <matt.tingen@gmail.com>
 // @description Transitive blame UI
 // @match https://bitbucket.org/*
-// @require file:///Users/matttingen/Development/userscripts/utils/general.js
-// @require file:///Users/matttingen/Development/userscripts/src/bitbucket/index.js
-// @require file:///Users/matttingen/Development/userscripts/utils/local.js
+// @require file:///Users/matt/Development/matt-tingen/userscripts/utils/general.js
+// @require file:///Users/matt/Development/matt-tingen/userscripts/src/bitbucket/index.js
+// @require file:///Users/matt/Development/matt-tingen/userscripts/utils/local.js
 // @grant none
 // ==/UserScript==

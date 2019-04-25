@@ -5,7 +5,7 @@
 // @author Matt Tingen <matt.tingen@gmail.com>
 // @description Improve directions links
 // @match https://www.yelp.com/*
-// @require file:///Users/matttingen/Development/userscripts/src/yelp/index.js
-// @require file:///Users/matttingen/Development/userscripts/utils/local.js
+// @require file:///Users/matt/Development/matt-tingen/userscripts/src/yelp/index.js
+// @require file:///Users/matt/Development/matt-tingen/userscripts/utils/local.js
 // @grant none
 // ==/UserScript==
