@@ -8,8 +8,8 @@
   "license": "MIT",
   "scripts": {
     "precommit": "yarn build && git add dist",
-    "build": "node index.js",
-    "start": "nodemon --watch src --watch utils index.js"
+    "build": "node build/index.js",
+    "start": "nodemon --watch src --watch utils build/index.js"
   },
   "devDependencies": {
     "husky": "^0.14.3",

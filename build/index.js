@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const stable = require('stable');
-const package = require('./package.json');
+const package = require('../package.json');
 
 function handleError(err) {
   if (err) {
@@ -193,7 +193,8 @@ function writeUserscript(baseFilename, contents) {
   });
 }
 
-const destPath = path.resolve(__dirname, 'dist');
-const scriptsDir = path.resolve(__dirname, 'src');
+const rootPath = path.resolve(__dirname, '..');
+const destPath = path.resolve(rootPath, 'dist');
+const scriptsDir = path.resolve(rootPath, 'src');
 const repoBaseUrl = getRepoUrl();
 fs.readdir(scriptsDir, processScriptsFolder);
