@@ -29,22 +29,22 @@ function getRepoUrl() {
 
 function processScriptsFolder(err, entries) {
   handleError(err);
-  entries.forEach(processHeader);
+  entries.forEach(processMetadata);
 }
 
-function processHeader(name) {
-  const headerPath = path.resolve(scriptsDir, name, 'header.json');
-  const headerJson = require(headerPath);
-  const defaultedHeader = prepHeader(headerJson, name);
+function processMetadata(name) {
+  const metadataPath = path.resolve(scriptsDir, name, 'metadata.json');
+  const metadataJson = require(metadataPath);
+  const defaultedMetadata = prepMetadata(metadataJson, name);
 
   buildModes.forEach(getBuildSettings => {
-    const { header, baseFilename = name } = getBuildSettings(
+    const { metadata, baseFilename = name } = getBuildSettings(
       name,
-      defaultedHeader,
+      defaultedMetadata,
     );
-    const headerString = renderHeader(header);
+    const metadataString = renderMetadata(metadata);
 
-    writeUserscript(baseFilename, headerString);
+    writeUserscript(baseFilename, metadataString);
   });
 }
 
@@ -52,23 +52,23 @@ function asArray(value) {
   return Array.isArray(value) ? value : [value];
 }
 
-const defaultHeader = {
+const defaultMetadata = {
   author: package.author.replace(/\s<.+/, ''),
   grant: 'none',
   namespace: package.homepage,
   require: [],
 };
 
-function applyHeaderDefaults(header, name) {
+function applyMetadataDefaults(metadata, name) {
   return {
     name,
-    ...defaultHeader,
-    ...header,
+    ...defaultMetadata,
+    ...metadata,
   };
 }
 
-function prepHeader(header, name) {
-  const defaulted = applyHeaderDefaults(header, name);
+function prepMetadata(metadata, name) {
+  const defaulted = applyMetadataDefaults(metadata, name);
 
   Object.getOwnPropertyNames(defaulted).forEach(key => {
     defaulted[key] = asArray(defaulted[key]);
@@ -77,10 +77,10 @@ function prepHeader(header, name) {
   return defaulted;
 }
 
-function getKeyValuePairs(header) {
+function getKeyValuePairs(metadata) {
   const pairs = [];
 
-  Object.entries(header).forEach(([key, value]) => {
+  Object.entries(metadata).forEach(([key, value]) => {
     if (Array.isArray(value)) {
       pairs.push(...value.map(v => [key, v]));
     } else {
@@ -130,10 +130,10 @@ function sortDirectives(directives) {
   );
 }
 
-function renderHeader(header) {
+function renderMetadata(metadata) {
   return [
     '// ==UserScript==',
-    ...sortDirectives(getKeyValuePairs(header)).map(
+    ...sortDirectives(getKeyValuePairs(metadata)).map(
       ([key, value]) => `// @${key} ${value}`,
     ),
     '// ==/UserScript==',
@@ -142,12 +142,12 @@ function renderHeader(header) {
 }
 
 const buildModes = [
-  (name, header) => ({
-    header: updateRemoteHeader(header, name),
+  (name, metadata) => ({
+    metadata: updateRemoteMetadata(metadata, name),
   }),
-  (name, header) => ({
+  (name, metadata) => ({
     baseFilename: `${name}.local`,
-    header: updateLocalHeader(header, name),
+    metadata: updateLocalMetadata(metadata, name),
   }),
 ];
 
@@ -155,11 +155,11 @@ function getRemoteUrl(...parts) {
   return joinUrl(repoBaseUrl, ...parts);
 }
 
-function updateRemoteHeader(header, name) {
+function updateRemoteMetadata(metadata, name) {
   return {
-    ...header,
+    ...metadata,
     downloadURL: getRemoteUrl('dist', `${name}.user.js`),
-    require: [...header.require, `/src/${name}/index.js`].map(url =>
+    require: [...metadata.require, `/src/${name}/index.js`].map(url =>
       updateAppRequire(getRemoteUrl, url),
     ),
   };
@@ -169,11 +169,11 @@ function getLocalUrl(...parts) {
   return `file://${path.resolve(__dirname, ...parts)}`;
 }
 
-function updateLocalHeader(header, name) {
+function updateLocalMetadata(metadata, name) {
   return {
-    ...header,
+    ...metadata,
     require: [
-      ...header.require,
+      ...metadata.require,
       `/src/${name}/index.js`,
       `/utils/local.js`,
     ].map(url => updateAppRequire(getLocalUrl, url)),
