@@ -1,5 +1,5 @@
 import path from 'path';
-import fs from 'fs';
+import fs from 'fs-extra';
 import stable from 'stable';
 import packageJson from '../package.json';
 
@@ -17,13 +17,6 @@ interface ProcessedMetadata extends Metadata {
   downloadURL?: string;
 }
 
-function handleError(error: Error | null) {
-  if (error) {
-    console.error(error);
-    process.exit(1);
-  }
-}
-
 function joinUrl(...parts: string[]) {
   return parts.join('/');
 }
@@ -32,11 +25,6 @@ function getRepoUrl() {
   const repo = packageJson.repository;
   const userAndName = repo.match(/:([^.]+).git/)![1];
   return joinUrl('https://raw.githubusercontent.com', userAndName, 'master');
-}
-
-function processScriptsFolder(error: Error | null, entries: string[]) {
-  handleError(error);
-  entries.forEach(processMetadata);
 }
 
 function processMetadata(name: string) {
@@ -182,14 +170,17 @@ function updateAppRequire(resolveParts: UrlPartsResolver, url: string) {
   return url.startsWith('/') ? resolveParts(...url.split('/').slice(1)) : url;
 }
 
-function writeUserscript(baseFilename: string, contents: string) {
+async function writeUserscript(baseFilename: string, contents: string) {
   const filename = `${baseFilename}.user.js`;
   const outputPath = path.resolve(destPath, filename);
-  fs.writeFile(outputPath, contents, err => {
-    handleError(err);
-    console.log(`wrote ${filename}`);
-  });
+  await fs.writeFile(outputPath, contents);
+  console.log(`wrote ${filename}`);
 }
+
+const main = async () => {
+  const entries = await fs.readdir(scriptsDir);
+  entries.forEach(processMetadata);
+};
 
 const rootPath = path.resolve(__dirname, '..');
 const destPath = path.resolve(rootPath, 'dist');
@@ -203,4 +194,7 @@ try {
   process.exit(1);
 }
 
-fs.readdir(scriptsDir, processScriptsFolder);
+main().catch((error: unknown) => {
+  console.error(error);
+  process.exit(1);
+});
