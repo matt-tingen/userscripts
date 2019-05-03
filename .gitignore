@@ -1,3 +1,4 @@
 dist/*.local.user.js
 node_modules
 js
+package.d.ts

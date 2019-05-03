@@ -614,6 +614,11 @@ gauge@~2.7.3:
     strip-ansi "^3.0.1"
     wide-align "^1.1.0"
 
+get-stdin@^5.0.1:
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/get-stdin/-/get-stdin-5.0.1.tgz#122e161591e21ff4c52530305693f20e6393a398"
+  integrity sha1-Ei4WFZHiH/TFJTAwVpPyDmOTo5g=
+
 get-stream@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/get-stream/-/get-stream-3.0.0.tgz#8e943d1358dc37555054ecbe2edb05aa174ede14"
@@ -740,6 +745,11 @@ ignore-walk@^3.0.1:
   integrity sha512-DTVlMx3IYPe0/JJcYP7Gxg7ttZZu3IInhuEhbchuqneY9wWe5Ojy2mXLBaQFUQmo0AW2r3qG7m1mg86js+gnlQ==
   dependencies:
     minimatch "^3.0.4"
+
+immutable@^3.8.1:
+  version "3.8.2"
+  resolved "https://registry.yarnpkg.com/immutable/-/immutable-3.8.2.tgz#c2439951455bb39913daf281376f1530e104adf3"
+  integrity sha1-wkOZUUVbs5kT2vKBN28VMOEErfM=
 
 import-lazy@^2.1.0:
   version "2.1.0"
@@ -985,6 +995,18 @@ json-schema-traverse@^0.4.1:
   resolved "https://registry.yarnpkg.com/json-schema-traverse/-/json-schema-traverse-0.4.1.tgz#69f6a87d9513ab8bb8fe63bdb0979c448e684660"
   integrity sha512-xbbCH5dCYU5T8LcEhhuh7HJ88HXuW3qsI3Y0zOZFKfZEHcpWiHU/Jxzk629Brsab/mMiHQti9wMP+845RPe3Vg==
 
+json-ts@^1.6.4:
+  version "1.6.4"
+  resolved "https://registry.yarnpkg.com/json-ts/-/json-ts-1.6.4.tgz#e4423b8ccdb3069306f4727d6a579790675abbd0"
+  integrity sha512-NFsb12aYB3v2W14UOX6zcYvfrkFmwJWlzGrmKFlRQtJujtnpAKFRvVem4L30MvJjJQmOKDUTRIgLUAE4UTFqRg==
+  dependencies:
+    get-stdin "^5.0.1"
+    immutable "^3.8.1"
+    minimist "^1.2.0"
+    needsquotes "^1.0.0"
+    transducers-js "^0.4.174"
+    typescript "^2.3.2"
+
 jsonfile@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/jsonfile/-/jsonfile-4.0.0.tgz#8771aae0799b64076b76640fca058f9c10e33ecb"
@@ -1168,6 +1190,11 @@ needle@^2.2.1:
     debug "^4.1.0"
     iconv-lite "^0.4.4"
     sax "^1.2.4"
+
+needsquotes@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/needsquotes/-/needsquotes-1.0.0.tgz#f54f90ff2ad3f5c1fc90236804639f849b924fad"
+  integrity sha1-9U+Q/yrT9cH8kCNoBGOfhJuST60=
 
 node-pre-gyp@^0.12.0:
   version "0.12.0"
@@ -1759,6 +1786,16 @@ touch@^3.1.0:
   integrity sha512-WBx8Uy5TLtOSRtIq+M03/sKDrXCLHxwDcquSP2c43Le03/9serjQBIztjRz6FkJez9D/hleyAXTBGLwwZUw9lA==
   dependencies:
     nopt "~1.0.10"
+
+transducers-js@^0.4.174:
+  version "0.4.174"
+  resolved "https://registry.yarnpkg.com/transducers-js/-/transducers-js-0.4.174.tgz#d5862c10eff4be3d3322abf6bb742e30f1bb6fc4"
+  integrity sha1-1YYsEO/0vj0zIqv2u3QuMPG7b8Q=
+
+typescript@^2.3.2:
+  version "2.9.2"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.9.2.tgz#1cbf61d05d6b96269244eb6a3bce4bd914e0f00c"
+  integrity sha512-Gr4p6nFNaoufRIY4NMdpQRNmgxVIGMs4Fcu/ujdYk3nAZqk7supzBE9idmvfZIlH/Cuj//dvi+019qEue9lV0w==
 
 typescript@^3.4.5:
   version "3.4.5"

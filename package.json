@@ -9,7 +9,8 @@
   "scripts": {
     "precommit": "yarn validate && yarn build && git add dist",
     "validate": "ajv -s metadata.schema.json -d 'src/**/*.meta.json'",
-    "compile": "tsc",
+    "compile:package": "json-ts package.json --prefix '' --rootName 'PackageInfo' > package.d.ts",
+    "compile": "yarn compile:package && tsc",
     "build": "yarn compile && node js/index.js",
     "start": "yarn compile && nodemon --watch src --watch utils js/index.js"
   },
@@ -20,6 +21,7 @@
     "ajv-cli": "^3.0.0",
     "fs-extra": "^7.0.1",
     "husky": "^0.14.3",
+    "json-ts": "^1.6.4",
     "klaw": "^3.0.0",
     "nodemon": "^1.18.11",
     "stable": "^0.1.8",
