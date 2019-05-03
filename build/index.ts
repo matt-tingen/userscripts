@@ -6,7 +6,7 @@ import packageJson from '../package.json';
 interface BaseMetadata {
   name: string;
   description: string;
-  match: string;
+  match: string[];
   require: string[];
   version: string;
 }
