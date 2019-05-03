@@ -3,8 +3,12 @@ import MetadataFactory from './MetadataFactory';
 import Userscript from './Userscript';
 
 class LocalMetadataFactory extends MetadataFactory {
+  constructor(private rootPath: string) {
+    super();
+  }
+
   resolveAppUrl(...parts: string[]) {
-    return `file://${path.resolve(__dirname, ...parts)}`;
+    return `file://${path.resolve(this.rootPath, ...parts)}`;
   }
 
   prepare({ metadata, name }: Userscript) {

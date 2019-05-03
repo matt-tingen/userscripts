@@ -10,8 +10,8 @@
     "precommit": "yarn validate && yarn build && git add dist",
     "validate": "ajv -s metadata.schema.json -d 'src/**/*.meta.json'",
     "compile": "tsc",
-    "build": "yarn compile && node build/index.js",
-    "start": "yarn compile && nodemon --watch src --watch utils build/index.js"
+    "build": "yarn compile && node js/index.js",
+    "start": "yarn compile && nodemon --watch src --watch utils js/index.js"
   },
   "devDependencies": {
     "@types/fs-extra": "^5.0.5",

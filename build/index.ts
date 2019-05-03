@@ -1,16 +1,16 @@
 import fs from 'fs-extra';
 import klaw from 'klaw';
 import path from 'path';
-import packageJson from '../package.json';
 import LocalMetadataFactory from './LocalMetadataFactory.js';
 import MetadataFactory from './MetadataFactory.js';
+import packageInfo from './packageInfo';
 import RemoteMetadataFactory from './RemoteMetadataFactory.js';
 import renderMetadata from './renderMetadata';
 import Userscript from './Userscript';
 
 function getRepoUrl() {
   try {
-    const userAndName = packageJson.repository.match(/:([^.]+).git/)![1];
+    const userAndName = packageInfo.repository.match(/:([^.]+).git/)![1];
     return `https://raw.githubusercontent.com/${userAndName}/master`;
   } catch (ignore) {
     throw new Error('Package repository in unexpected format');
@@ -27,9 +27,9 @@ function processMetadata(metadataPath: string) {
 }
 
 const defaultMetadata = {
-  author: packageJson.author.replace(/\s<.+/, ''),
+  author: packageInfo.author.replace(/\s<.+/, ''),
   grant: 'none',
-  namespace: packageJson.homepage,
+  namespace: packageInfo.homepage,
 };
 
 async function writeUserscript(
@@ -73,7 +73,7 @@ const baseRepoUrl = getRepoUrl();
 
 const metadataFactories: Record<string, MetadataFactory> = {
   '': new RemoteMetadataFactory(baseRepoUrl),
-  local: new LocalMetadataFactory(),
+  local: new LocalMetadataFactory(rootPath),
 };
 
 main().catch((error: unknown) => {
