@@ -2,5 +2,6 @@
   "name": "Yelp",
   "description": "Improve directions links",
   "match": "https://www.yelp.com/*",
+  "require": [],
   "version": "1.0"
 }

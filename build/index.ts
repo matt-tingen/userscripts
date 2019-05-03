@@ -1,40 +1,47 @@
-const path = require('path');
-const fs = require('fs');
-const stable = require('stable');
-const package = require('../package.json');
+import path from 'path';
+import fs from 'fs';
+import stable from 'stable';
+import packageJson from '../package.json';
 
-function handleError(err) {
-  if (err) {
-    console.error(err);
+interface BaseMetadata {
+  name: string;
+  description: string;
+  match: string;
+  require: string[];
+  version: string;
+}
+
+type Metadata = typeof defaultMetadata & BaseMetadata;
+
+interface ProcessedMetadata extends Metadata {
+  downloadURL?: string;
+}
+
+function handleError(error: Error | null) {
+  if (error) {
+    console.error(error);
     process.exit(1);
   }
 }
 
-function joinUrl(...parts) {
+function joinUrl(...parts: string[]) {
   return parts.join('/');
 }
 
 function getRepoUrl() {
-  const repo = package.repository;
-  let userAndName;
-
-  try {
-    userAndName = repo.match(/:([^.]+).git/)[1];
-  } catch (err) {
-    console.error('Package repository in unexpected format');
-    process.exit(1);
-  }
+  const repo = packageJson.repository;
+  const userAndName = repo.match(/:([^.]+).git/)![1];
   return joinUrl('https://raw.githubusercontent.com', userAndName, 'master');
 }
 
-function processScriptsFolder(err, entries) {
-  handleError(err);
+function processScriptsFolder(error: Error | null, entries: string[]) {
+  handleError(error);
   entries.forEach(processMetadata);
 }
 
-function processMetadata(name) {
+function processMetadata(name: string) {
   const metadataPath = path.resolve(scriptsDir, name, 'metadata.json');
-  const metadataJson = require(metadataPath);
+  const metadataJson = require(metadataPath) as BaseMetadata;
   const defaultedMetadata = prepMetadata(metadataJson, name);
 
   buildModes.forEach(getBuildSettings => {
@@ -48,18 +55,17 @@ function processMetadata(name) {
   });
 }
 
-function asArray(value) {
+function asArray<T>(value: T | T[]) {
   return Array.isArray(value) ? value : [value];
 }
 
 const defaultMetadata = {
-  author: package.author.replace(/\s<.+/, ''),
+  author: packageJson.author.replace(/\s<.+/, ''),
   grant: 'none',
-  namespace: package.homepage,
-  require: [],
+  namespace: packageJson.homepage,
 };
 
-function applyMetadataDefaults(metadata, name) {
+function applyMetadataDefaults(metadata: BaseMetadata, name: string): Metadata {
   return {
     name,
     ...defaultMetadata,
@@ -67,22 +73,25 @@ function applyMetadataDefaults(metadata, name) {
   };
 }
 
-function prepMetadata(metadata, name) {
+function prepMetadata(metadata: BaseMetadata, name: string) {
   const defaulted = applyMetadataDefaults(metadata, name);
+  const keys = Object.getOwnPropertyNames(defaulted) as (keyof Metadata)[];
 
-  Object.getOwnPropertyNames(defaulted).forEach(key => {
+  keys.forEach(key => {
     defaulted[key] = asArray(defaulted[key]);
   });
 
   return defaulted;
 }
 
-function getKeyValuePairs(metadata) {
-  const pairs = [];
+type Metadatum = [keyof ProcessedMetadata, string | string[]];
+function getKeyValuePairs(metadata: ProcessedMetadata) {
+  const pairs: Metadatum[] = [];
+  const entries = Object.entries(metadata) as Metadatum[];
 
-  Object.entries(metadata).forEach(([key, value]) => {
+  entries.forEach(([key, value]) => {
     if (Array.isArray(value)) {
-      pairs.push(...value.map(v => [key, v]));
+      pairs.push(...value.map(v => [key, v] as Metadatum));
     } else {
       pairs.push([key, value]);
     }
@@ -122,7 +131,7 @@ const directivesOrder = [
   'nocompat',
 ];
 
-function sortDirectives(directives) {
+function sortDirectives(directives: Metadatum[]) {
   // This sort must be stable to maintain the order among `@require`s.
   return stable(
     directives,
@@ -130,7 +139,7 @@ function sortDirectives(directives) {
   );
 }
 
-function renderMetadata(metadata) {
+function renderMetadata(metadata: ProcessedMetadata) {
   return [
     '// ==UserScript==',
     ...sortDirectives(getKeyValuePairs(metadata)).map(
@@ -141,7 +150,15 @@ function renderMetadata(metadata) {
   ].join('\n');
 }
 
-const buildModes = [
+type BuildMode = (
+  name: string,
+  metadata: Metadata,
+) => {
+  metadata: ProcessedMetadata;
+  baseFilename?: string;
+};
+
+const buildModes: BuildMode[] = [
   (name, metadata) => ({
     metadata: updateRemoteMetadata(metadata, name),
   }),
@@ -151,11 +168,12 @@ const buildModes = [
   }),
 ];
 
-function getRemoteUrl(...parts) {
-  return joinUrl(repoBaseUrl, ...parts);
-}
+type UrlPartsResolver = (...parts: string[]) => string;
 
-function updateRemoteMetadata(metadata, name) {
+const getRemoteUrl: UrlPartsResolver = (...parts) =>
+  joinUrl(repoBaseUrl, ...parts);
+
+function updateRemoteMetadata(metadata: Metadata, name: string) {
   return {
     ...metadata,
     downloadURL: getRemoteUrl('dist', `${name}.user.js`),
@@ -165,11 +183,10 @@ function updateRemoteMetadata(metadata, name) {
   };
 }
 
-function getLocalUrl(...parts) {
-  return `file://${path.resolve(__dirname, ...parts)}`;
-}
+const getLocalUrl: UrlPartsResolver = (...parts) =>
+  `file://${path.resolve(__dirname, ...parts)}`;
 
-function updateLocalMetadata(metadata, name) {
+function updateLocalMetadata(metadata: Metadata, name: string) {
   return {
     ...metadata,
     require: [
@@ -180,11 +197,11 @@ function updateLocalMetadata(metadata, name) {
   };
 }
 
-function updateAppRequire(resolveParts, url) {
+function updateAppRequire(resolveParts: UrlPartsResolver, url: string) {
   return url.startsWith('/') ? resolveParts(...url.split('/').slice(1)) : url;
 }
 
-function writeUserscript(baseFilename, contents) {
+function writeUserscript(baseFilename: string, contents: string) {
   const filename = `${baseFilename}.user.js`;
   const outputPath = path.resolve(destPath, filename);
   fs.writeFile(outputPath, contents, err => {
@@ -196,5 +213,13 @@ function writeUserscript(baseFilename, contents) {
 const rootPath = path.resolve(__dirname, '..');
 const destPath = path.resolve(rootPath, 'dist');
 const scriptsDir = path.resolve(rootPath, 'src');
-const repoBaseUrl = getRepoUrl();
+
+let repoBaseUrl: string;
+try {
+  repoBaseUrl = getRepoUrl();
+} catch (err) {
+  console.error('Package repository in unexpected format');
+  process.exit(1);
+}
+
 fs.readdir(scriptsDir, processScriptsFolder);
