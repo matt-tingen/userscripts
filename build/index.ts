@@ -38,14 +38,12 @@ const registerName = (name: string) => {
   encounteredBaseFilenames.add(name);
 };
 
-const getUserscriptName = (metadataPath: string, metadataJson: BaseMetadata) =>
-  (
-    metadataJson.name || path.basename(path.dirname(metadataPath))
-  ).toLowerCase();
+const getUserscriptName = (metadataPath: string) =>
+  path.basename(metadataPath, '.meta.json').toLowerCase();
 
 function processMetadata(metadataPath: string) {
   const metadataJson = require(metadataPath) as BaseMetadata;
-  const name = getUserscriptName(metadataPath, metadataJson);
+  const name = getUserscriptName(metadataPath);
 
   registerName(name);
 
@@ -72,16 +70,15 @@ const defaultMetadata = {
   namespace: packageJson.homepage,
 };
 
-function applyMetadataDefaults(metadata: BaseMetadata, name: string): Metadata {
+function applyMetadataDefaults(metadata: BaseMetadata): Metadata {
   return {
-    name,
     ...defaultMetadata,
     ...metadata,
   };
 }
 
 function prepMetadata(metadata: BaseMetadata, name: string) {
-  const defaulted = applyMetadataDefaults(metadata, name);
+  const defaulted = applyMetadataDefaults(metadata);
   const keys = Object.getOwnPropertyNames(defaulted) as (keyof Metadata)[];
 
   keys.forEach(key => {
@@ -202,10 +199,7 @@ const getMetadataPaths = () =>
 
     klaw(sourcePath)
       .on('data', item => {
-        if (
-          item.stats.isFile() &&
-          path.basename(item.path) === 'metadata.json'
-        ) {
+        if (item.stats.isFile() && item.path.endsWith('.meta.json')) {
           paths.push(item.path);
         }
       })
