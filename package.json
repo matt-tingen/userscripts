@@ -7,7 +7,8 @@
   "author": "Matt Tingen <matt.tingen@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "precommit": "yarn build && git add dist",
+    "precommit": "yarn validate && yarn build && git add dist",
+    "validate": "ajv -s metadata.schema.json -d 'src/**/*.meta.json'",
     "compile": "tsc",
     "build": "yarn compile && node build/index.js",
     "start": "yarn compile && nodemon --watch src --watch utils build/index.js"
@@ -16,6 +17,7 @@
     "@types/fs-extra": "^5.0.5",
     "@types/klaw": "^3.0.0",
     "@types/node": "^11.13.9",
+    "ajv-cli": "^3.0.0",
     "fs-extra": "^7.0.1",
     "husky": "^0.14.3",
     "klaw": "^3.0.0",
