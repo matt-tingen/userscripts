@@ -1,5 +1,6 @@
 import path from 'path';
 import fs from 'fs-extra';
+import klaw from 'klaw';
 import stable from 'stable';
 import packageJson from '../package.json';
 
@@ -27,9 +28,27 @@ function getRepoUrl() {
   return joinUrl('https://raw.githubusercontent.com', userAndName, 'master');
 }
 
-function processMetadata(name: string) {
-  const metadataPath = path.resolve(scriptsDir, name, 'metadata.json');
+const encounteredBaseFilenames = new Set<string>();
+
+const registerName = (name: string) => {
+  if (encounteredBaseFilenames.has(name)) {
+    throw new Error('Duplicate script name');
+  }
+
+  encounteredBaseFilenames.add(name);
+};
+
+const getUserscriptName = (metadataPath: string, metadataJson: BaseMetadata) =>
+  (
+    metadataJson.name || path.basename(path.dirname(metadataPath))
+  ).toLowerCase();
+
+function processMetadata(metadataPath: string) {
   const metadataJson = require(metadataPath) as BaseMetadata;
+  const name = getUserscriptName(metadataPath, metadataJson);
+
+  registerName(name);
+
   const defaultedMetadata = prepMetadata(metadataJson, name);
 
   buildModes.forEach(getBuildSettings => {
@@ -177,14 +196,31 @@ async function writeUserscript(baseFilename: string, contents: string) {
   console.log(`wrote ${filename}`);
 }
 
+const getMetadataPaths = () =>
+  new Promise<string[]>((resolve, reject) => {
+    const paths: string[] = [];
+
+    klaw(sourcePath)
+      .on('data', item => {
+        if (
+          item.stats.isFile() &&
+          path.basename(item.path) === 'metadata.json'
+        ) {
+          paths.push(item.path);
+        }
+      })
+      .on('error', reject)
+      .on('end', () => resolve(paths));
+  });
+
 const main = async () => {
-  const entries = await fs.readdir(scriptsDir);
-  entries.forEach(processMetadata);
+  const metadataPaths = await getMetadataPaths();
+  metadataPaths.forEach(processMetadata);
 };
 
 const rootPath = path.resolve(__dirname, '..');
 const destPath = path.resolve(rootPath, 'dist');
-const scriptsDir = path.resolve(rootPath, 'src');
+const sourcePath = path.resolve(rootPath, 'src');
 
 let repoBaseUrl: string;
 try {
