@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["name", "description", "match", "require", "version"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "The display name for the userscript. This must be unique (case-insensitive) among all userscripts in the repo",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string",
+      "description": "A description of what the userscript does.",
+      "minLength": 1
+    },
+    "match": {
+      "type": "array",
+      "description": "URL patterns on which to run the userscript.\nSee https://developer.chrome.com/extensions/match_patterns",
+      "default": [],
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "default": "https://example.com/*",
+        "examples": ["<all_urls>"],
+        "format": "uri"
+      }
+    },
+    "require": {
+      "type": "array",
+      "description": "Dependencies used by the userscript.",
+      "default": [],
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "examples": [
+          "https://code.jquery.com/jquery-3.3.1.slim.min.js",
+          "/utils/general.js"
+        ],
+        "format": "uri-reference"
+      }
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0",
+      "pattern": "^(\\d+(?:\\.\\d+){0,2})$"
+    }
+  }
+}
