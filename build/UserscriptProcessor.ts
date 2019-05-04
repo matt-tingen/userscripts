@@ -1,9 +1,9 @@
 import path from 'path';
 import Userscript from './Userscript';
 
-abstract class MetadataFactory {
+abstract class UserscriptProcessor {
   protected abstract resolveAppUrl(...parts: string[]): string;
-  protected abstract prepare(userscript: Userscript): Metadata;
+  protected abstract prepareMetadata(userscript: Userscript): Metadata;
 
   constructor(
     protected localRepoPath: string,
@@ -25,8 +25,8 @@ abstract class MetadataFactory {
     return this.resolveAppUrl(basePath, ...parts);
   }
 
-  build(userscript: Userscript): Metadata {
-    const metadata = this.prepare(userscript);
+  private buildMetadata(userscript: Userscript): Metadata {
+    const metadata = this.prepareMetadata(userscript);
     return {
       ...metadata,
       require: metadata.require.map(url =>
@@ -34,6 +34,11 @@ abstract class MetadataFactory {
       ),
     };
   }
+
+  process(userscript: Userscript): Userscript {
+    const metadata = this.buildMetadata(userscript);
+    return new Userscript(userscript.metadataPath, metadata);
+  }
 }
 
-export default MetadataFactory;
+export default UserscriptProcessor;

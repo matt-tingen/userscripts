@@ -1,13 +1,13 @@
 import path from 'path';
-import MetadataFactory from './MetadataFactory';
+import UserscriptProcessor from './UserscriptProcessor';
 import Userscript from './Userscript';
 
-class LocalMetadataFactory extends MetadataFactory {
+class LocalUserscriptProcessor extends UserscriptProcessor {
   protected resolveAppUrl(...parts: string[]) {
     return `file://${path.resolve(this.localRepoPath, ...parts)}`;
   }
 
-  protected prepare({ metadata }: Userscript) {
+  protected prepareMetadata({ metadata }: Userscript) {
     return {
       ...metadata,
       require: [...metadata.require, `/utils/local.js`],
@@ -15,4 +15,4 @@ class LocalMetadataFactory extends MetadataFactory {
   }
 }
 
-export default LocalMetadataFactory;
+export default LocalUserscriptProcessor;

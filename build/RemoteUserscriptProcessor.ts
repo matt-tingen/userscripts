@@ -1,7 +1,7 @@
-import MetadataFactory from './MetadataFactory';
+import UserscriptProcessor from './UserscriptProcessor';
 import Userscript from './Userscript';
 
-class RemoteMetadataFactory extends MetadataFactory {
+class RemoteUserscriptProcessor extends UserscriptProcessor {
   constructor(
     localRepoPath: string,
     localSourcePath: string,
@@ -14,7 +14,7 @@ class RemoteMetadataFactory extends MetadataFactory {
     return [this.remoteRepoUrl, ...parts].join('/');
   }
 
-  protected prepare({ metadata, name }: Userscript) {
+  protected prepareMetadata({ metadata, name }: Userscript) {
     return {
       ...metadata,
       downloadURL: this.resolveAppUrl('dist', `${name}.user.js`),
@@ -22,4 +22,4 @@ class RemoteMetadataFactory extends MetadataFactory {
   }
 }
 
-export default RemoteMetadataFactory;
+export default RemoteUserscriptProcessor;

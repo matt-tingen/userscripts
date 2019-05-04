@@ -1,12 +1,12 @@
 import fs from 'fs-extra';
 import klaw from 'klaw';
 import path from 'path';
-import LocalMetadataFactory from './LocalMetadataFactory.js';
-import MetadataFactory from './MetadataFactory.js';
+import LocalUserscriptProcessor from './LocalUserscriptProcessor';
 import packageInfo from './packageInfo';
-import RemoteMetadataFactory from './RemoteMetadataFactory.js';
+import RemoteUserscriptProcessor from './RemoteUserscriptProcessor';
 import renderMetadata from './renderMetadata';
 import Userscript from './Userscript';
+import UserscriptProcessor from './UserscriptProcessor.js';
 
 function getRepoUrl() {
   try {
@@ -17,13 +17,13 @@ function getRepoUrl() {
   }
 }
 
-function processMetadata(metadataPath: string) {
-  const userscript = new Userscript(metadataPath, defaultMetadata);
-
-  Object.entries(metadataFactories).forEach(([filenameSuffix, factory]) => {
-    const metadata = factory.build(userscript);
-    writeUserscript(userscript, metadata, filenameSuffix);
-  });
+function processUserscript(userscript: Userscript) {
+  Object.entries(userscriptProcessors).forEach(
+    ([filenameSuffix, processor]) => {
+      const updatedUserscript = processor.process(userscript);
+      writeUserscript(updatedUserscript, filenameSuffix);
+    },
+  );
 }
 
 const defaultMetadata = {
@@ -33,8 +33,7 @@ const defaultMetadata = {
 };
 
 async function writeUserscript(
-  { name }: Userscript,
-  metadata: Metadata,
+  { name, metadata }: Userscript,
   filenameSuffix: string,
 ) {
   const contents = renderMetadata(metadata);
@@ -61,9 +60,24 @@ const getMetadataPaths = () =>
       .on('end', () => resolve(paths));
   });
 
+const userscriptNames = new Set<string>();
+
+const registerUserscript = ({ name }: Userscript) => {
+  if (userscriptNames.has(name)) {
+    throw new Error('Duplicate script name');
+  }
+
+  userscriptNames.add(name);
+};
+
 const main = async () => {
   const metadataPaths = await getMetadataPaths();
-  metadataPaths.forEach(processMetadata);
+
+  metadataPaths.forEach(metadataPath => {
+    const userscript = Userscript.fromFile(metadataPath, defaultMetadata);
+    registerUserscript(userscript);
+    processUserscript(userscript);
+  });
 };
 
 const rootPath = path.resolve(__dirname, '..');
@@ -71,9 +85,9 @@ const destPath = path.resolve(rootPath, 'dist');
 const sourcePath = path.resolve(rootPath, 'src');
 const baseRepoUrl = getRepoUrl();
 
-const metadataFactories: Record<string, MetadataFactory> = {
-  '': new RemoteMetadataFactory(rootPath, sourcePath, baseRepoUrl),
-  local: new LocalMetadataFactory(rootPath, sourcePath),
+const userscriptProcessors: Record<string, UserscriptProcessor> = {
+  '': new RemoteUserscriptProcessor(rootPath, sourcePath, baseRepoUrl),
+  local: new LocalUserscriptProcessor(rootPath, sourcePath),
 };
 
 main().catch((error: unknown) => {
