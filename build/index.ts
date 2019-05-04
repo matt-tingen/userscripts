@@ -4,9 +4,9 @@ import path from 'path';
 import LocalUserscriptProcessor from './LocalUserscriptProcessor';
 import packageInfo from './packageInfo';
 import RemoteUserscriptProcessor from './RemoteUserscriptProcessor';
-import renderMetadata from './renderMetadata';
 import Userscript from './Userscript';
 import UserscriptProcessor from './UserscriptProcessor.js';
+import UserscriptRenderer from './UserscriptRenderer';
 
 function getRepoUrl() {
   try {
@@ -18,12 +18,10 @@ function getRepoUrl() {
 }
 
 function processUserscript(userscript: Userscript) {
-  Object.entries(userscriptProcessors).forEach(
-    ([filenameSuffix, processor]) => {
-      const updatedUserscript = processor.process(userscript);
-      writeUserscript(updatedUserscript, filenameSuffix);
-    },
-  );
+  Object.entries(processors).forEach(([filenameSuffix, processor]) => {
+    const updatedUserscript = processor.process(userscript);
+    writeUserscript(updatedUserscript, filenameSuffix);
+  });
 }
 
 const defaultMetadata = {
@@ -32,16 +30,13 @@ const defaultMetadata = {
   namespace: packageInfo.homepage,
 };
 
-async function writeUserscript(
-  { name, metadata }: Userscript,
-  filenameSuffix: string,
-) {
-  const contents = renderMetadata(metadata);
-
-  const filename = `${name}${
+async function writeUserscript(userscript: Userscript, filenameSuffix: string) {
+  const contents = await renderer.render(userscript);
+  const filename = `${userscript.name}${
     filenameSuffix ? `.${filenameSuffix}` : ''
   }.user.js`;
   const outputPath = path.resolve(destPath, filename);
+
   await fs.writeFile(outputPath, contents);
   console.log(`wrote ${filename}`);
 }
@@ -85,10 +80,11 @@ const destPath = path.resolve(rootPath, 'dist');
 const sourcePath = path.resolve(rootPath, 'src');
 const baseRepoUrl = getRepoUrl();
 
-const userscriptProcessors: Record<string, UserscriptProcessor> = {
+const processors: Record<string, UserscriptProcessor> = {
   '': new RemoteUserscriptProcessor(rootPath, sourcePath, baseRepoUrl),
   local: new LocalUserscriptProcessor(rootPath, sourcePath),
 };
+const renderer = new UserscriptRenderer(rootPath);
 
 main().catch((error: unknown) => {
   console.error(error);

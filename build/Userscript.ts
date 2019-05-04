@@ -26,18 +26,9 @@ class Userscript {
   constructor(
     readonly metadataPath: string,
     readonly metadata: Readonly<Metadata>,
+    readonly inlineScriptPaths: string[] = [],
   ) {
     this.name = Userscript.getName(metadataPath);
-  }
-
-  get internalScripts() {
-    return this.metadata.require.filter(Userscript.isScriptInternal);
-  }
-
-  get externalScripts() {
-    return this.metadata.require.filter(
-      url => !Userscript.isScriptInternal(url),
-    );
   }
 }
 

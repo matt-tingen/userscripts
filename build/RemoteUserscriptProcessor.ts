@@ -7,7 +7,7 @@ class RemoteUserscriptProcessor extends UserscriptProcessor {
     localSourcePath: string,
     private remoteRepoUrl: string,
   ) {
-    super(localRepoPath, localSourcePath);
+    super(localRepoPath, localSourcePath, UserscriptProcessor.isScriptInternal);
   }
 
   protected resolveAppUrl(...parts: string[]) {
