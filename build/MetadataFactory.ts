@@ -2,7 +2,7 @@ import path from 'path';
 import Userscript from './Userscript';
 
 abstract class MetadataFactory {
-  abstract resolveAppUrl(...parts: string[]): string;
+  protected abstract resolveAppUrl(...parts: string[]): string;
   protected abstract prepare(userscript: Userscript): Metadata;
 
   constructor(
