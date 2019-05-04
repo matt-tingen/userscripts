@@ -5,6 +5,10 @@ class Userscript {
     return path.basename(metadataPath, '.meta.json').toLowerCase();
   }
 
+  static isScriptInternal(url: string) {
+    return /^\.?\//.test(url);
+  }
+
   static fromFile(
     metadataPath: string,
     defaultMetadata: Partial<Metadata>,
@@ -24,6 +28,16 @@ class Userscript {
     readonly metadata: Readonly<Metadata>,
   ) {
     this.name = Userscript.getName(metadataPath);
+  }
+
+  get internalScripts() {
+    return this.metadata.require.filter(Userscript.isScriptInternal);
+  }
+
+  get externalScripts() {
+    return this.metadata.require.filter(
+      url => !Userscript.isScriptInternal(url),
+    );
   }
 }
 

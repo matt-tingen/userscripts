@@ -1,5 +1,6 @@
 import path from 'path';
 import Userscript from './Userscript';
+import partition from './partition';
 
 abstract class UserscriptProcessor {
   protected abstract resolveAppUrl(...parts: string[]): string;
@@ -10,12 +11,11 @@ abstract class UserscriptProcessor {
     protected localSourcePath: string,
   ) {}
 
-  private processRequire({ metadataPath }: Userscript, url: string) {
-    const [firstPart, ...parts] = url.split('/');
-
-    if (!['', '.'].includes(firstPart)) {
-      return url;
-    }
+  private processInternalScriptPath(
+    { metadataPath }: Userscript,
+    scriptPath: string,
+  ) {
+    const [firstPart, ...parts] = scriptPath.split('/');
 
     const basePath = path.relative(
       this.localRepoPath,
@@ -27,11 +27,20 @@ abstract class UserscriptProcessor {
 
   private buildMetadata(userscript: Userscript): Metadata {
     const metadata = this.prepareMetadata(userscript);
+
+    const [internalScripts, externalScripts] = partition(
+      metadata.require,
+      Userscript.isScriptInternal,
+    );
+
     return {
       ...metadata,
-      require: metadata.require.map(url =>
-        this.processRequire(userscript, url),
-      ),
+      require: [
+        ...externalScripts,
+        ...internalScripts.map(scriptPath =>
+          this.processInternalScriptPath(userscript, scriptPath),
+        ),
+      ],
     };
   }
 
