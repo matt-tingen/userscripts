@@ -1,4 +1,4 @@
-(function() {
+(() => {
   const watermark = document.createElement('div');
   watermark.textContent = 'Using local userscript';
 
@@ -15,3 +15,12 @@
 
   document.body.appendChild(watermark);
 })();
+
+if ('define' in window) {
+  console.warn(
+    '"window.define" is already defined; userscripts may error. Use non-local userscripts to avoid issues.',
+  );
+} else {
+  // Expose define for referenced scripts.
+  window.define = __MJT_USERSCRIPTS__.define;
+}

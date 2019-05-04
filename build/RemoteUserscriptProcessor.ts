@@ -18,6 +18,7 @@ class RemoteUserscriptProcessor extends UserscriptProcessor {
     return {
       ...metadata,
       downloadURL: this.resolveAppUrl('dist', `${name}.user.js`),
+      require: ['/meta/remote.js', ...metadata.require],
     };
   }
 }

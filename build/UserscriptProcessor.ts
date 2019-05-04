@@ -39,9 +39,14 @@ abstract class UserscriptProcessor {
 
   process(userscript: Userscript): Userscript {
     const metadata = this.prepareMetadata(userscript);
+    const allScripts = [
+      '/meta/base.js',
+      '/meta/define.js',
+      ...metadata.require,
+    ];
 
     const [inlineScripts, referencedScripts] = partition(
-      metadata.require,
+      allScripts,
       this.inlineScriptFilter,
     );
 

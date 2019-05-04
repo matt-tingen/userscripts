@@ -10,7 +10,7 @@ class LocalUserscriptProcessor extends UserscriptProcessor {
   protected prepareMetadata({ metadata }: Userscript) {
     return {
       ...metadata,
-      require: [...metadata.require, `/utils/local.js`],
+      require: ['/meta/local.js', ...metadata.require],
     };
   }
 }

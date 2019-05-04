@@ -1,6 +1,4 @@
-(function() {
-  const { waitForClass } = window.__MJT_USERSCRIPTS__.utils;
-
+define(({ waitForClass }) => {
   const REPO_PATH = location.pathname.match(/^(?:\/[^\/]+){2}/)[0];
   // The official API (https://api.bitbucket.org/2.0/) requires auth. This
   // undocumented API appears to use the user's cookies.
@@ -32,12 +30,6 @@
     if (!commitInfoCache[hash]) {
       const response = await fetch(`${API_BASE}/commit/${hash}`);
       commitInfoCache[hash] = response.json();
-      // commitInfoCache[hash] = {
-      //   parentHash: parseHashFromUrl(
-      //     doc.find('.commit-parents a:first-of-type').attr('href'),
-      //   ),
-      //   commitMessage: doc.find('.commit-message > p:first-child').text(),
-      // };
     }
 
     return await commitInfoCache[hash];
@@ -180,4 +172,4 @@
         });
     },
   );
-})();
+});

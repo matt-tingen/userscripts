@@ -78,13 +78,16 @@ const main = async () => {
 const rootPath = path.resolve(__dirname, '..');
 const destPath = path.resolve(rootPath, 'dist');
 const sourcePath = path.resolve(rootPath, 'src');
+const metaSourcePath = path.resolve(sourcePath, 'meta');
 const baseRepoUrl = getRepoUrl();
 
 const processors: Record<string, UserscriptProcessor> = {
   '': new RemoteUserscriptProcessor(rootPath, sourcePath, baseRepoUrl),
   local: new LocalUserscriptProcessor(rootPath, sourcePath),
 };
-const renderer = new UserscriptRenderer(rootPath);
+const renderer = new UserscriptRenderer(rootPath, scriptPath =>
+  scriptPath.startsWith(metaSourcePath),
+);
 
 main().catch((error: unknown) => {
   console.error(error);

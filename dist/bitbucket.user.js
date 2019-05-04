@@ -9,47 +9,77 @@
 // @grant none
 // ==/UserScript==
 
-
-window.__MJT_USERSCRIPTS__ = {
-  utils: (function() {
-    const includesClass = className => {
-      // Valid CSS class names do not require escaping at the root of a regex.
-      const regex = new RegExp(`(^| )${className}($| )`, 'g');
-      return classNames => regex.test(classNames);
-    };
-
-    const waitForClass = (className, nodes, callback) => {
-      const hasClass = includesClass(className);
-      const observer = new MutationObserver(mutations => {
-        mutations.forEach(mutation => {
-          const node = mutation.target;
-
-          if (!hasClass(mutation.oldValue) && hasClass(node.className)) {
-            callback(node);
-          }
-        });
-      });
-
-      nodes.forEach(node => {
-        observer.observe(node, {
-          attributes: true,
-          attributeFilter: ['class'],
-          attributeOldValue: true,
-        });
-      });
-    };
-
-    return {
-      includesClass,
-      waitForClass,
-    };
-  })(),
-};
+/* Script loaded from "src/meta/base.js" */
+window.__MJT_USERSCRIPTS__ = {};
 
 
-(function() {
-  const { waitForClass } = window.__MJT_USERSCRIPTS__.utils;
+/* Script loaded from "src/meta/define.js" */
+__MJT_USERSCRIPTS__.define = (() => {
+  const modules = Object.create(null);
 
+  return (...args) => {
+    let name, definition;
+
+    if (args.length === 2) {
+      name = args[0];
+      definition = args[1];
+    } else if (args.length === 1) {
+      definition = args[0];
+    }
+
+    if (
+      typeof definition !== 'function' ||
+      (name && typeof name !== 'string')
+    ) {
+      throw new Error('Invalid invocation of "define"');
+    }
+
+    if (name && name in modules) {
+      throw new Error(`Module "${name}" is already defined`);
+    }
+
+    const result = definition(modules);
+
+    if (name) {
+      modules[name] = result;
+    }
+  };
+})();
+
+
+/* Script loaded from "src/meta/remote.js" */
+// Expose define for inlined scripts.
+const { define } = __MJT_USERSCRIPTS__;
+
+
+/* Script loaded from "src/utils/waitForClass.js" */
+(function () {
+define('waitForClass', ({ includesClass }) => (className, nodes, callback) => {
+  const hasClass = includesClass(className);
+  const observer = new MutationObserver(mutations => {
+    mutations.forEach(mutation => {
+      const node = mutation.target;
+
+      if (!hasClass(mutation.oldValue) && hasClass(node.className)) {
+        callback(node);
+      }
+    });
+  });
+
+  nodes.forEach(node => {
+    observer.observe(node, {
+      attributes: true,
+      attributeFilter: ['class'],
+      attributeOldValue: true,
+    });
+  });
+});
+
+})();
+
+/* Script loaded from "src/bitbucket/index.js" */
+(function () {
+define(({ waitForClass }) => {
   const REPO_PATH = location.pathname.match(/^(?:\/[^\/]+){2}/)[0];
   // The official API (https://api.bitbucket.org/2.0/) requires auth. This
   // undocumented API appears to use the user's cookies.
@@ -81,12 +111,6 @@ window.__MJT_USERSCRIPTS__ = {
     if (!commitInfoCache[hash]) {
       const response = await fetch(`${API_BASE}/commit/${hash}`);
       commitInfoCache[hash] = response.json();
-      // commitInfoCache[hash] = {
-      //   parentHash: parseHashFromUrl(
-      //     doc.find('.commit-parents a:first-of-type').attr('href'),
-      //   ),
-      //   commitMessage: doc.find('.commit-message > p:first-child').text(),
-      // };
     }
 
     return await commitInfoCache[hash];
@@ -229,4 +253,6 @@ window.__MJT_USERSCRIPTS__ = {
         });
     },
   );
+});
+
 })();

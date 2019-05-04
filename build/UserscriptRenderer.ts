@@ -1,4 +1,4 @@
-import fs from 'fs-extra';
+import fs, { readSync } from 'fs-extra';
 import path from 'path';
 import stable from 'stable';
 import Userscript from './Userscript';
@@ -37,7 +37,10 @@ const ruleOrder = [
 type MetadataRule = [string, Metadata[keyof Metadata]];
 
 class UserscriptRenderer {
-  constructor(private rootPath: string) {}
+  constructor(
+    private rootPath: string,
+    private isScriptGlobal: (scriptPath: string) => boolean,
+  ) {}
 
   private sortRules(rules: MetadataRule[]) {
     // This sort must be stable to maintain the order among `@require`s.
@@ -71,15 +74,30 @@ class UserscriptRenderer {
         ([key, value]) => `// @${key} ${value}`,
       ),
       '// ==/UserScript==',
-      '',
     ].join('\n');
+  }
+
+  private async renderScript(scriptPath: string) {
+    const fullPath = path.resolve(this.rootPath, scriptPath);
+    const contents = await fs.readFile(scriptPath);
+    const useIife = !this.isScriptGlobal(fullPath);
+
+    return [
+      `/* Script loaded from "${scriptPath}" */`,
+      useIife && '(function () {',
+      contents,
+      useIife && '})();',
+      '',
+    ]
+      .filter(Boolean)
+      .join('\n');
   }
 
   async render(userscript: Userscript) {
     const metadata = this.renderMetadata(userscript.metadata);
     const scripts = await Promise.all(
       userscript.inlineScriptPaths.map(scriptPath =>
-        fs.readFile(path.resolve(this.rootPath, scriptPath)),
+        this.renderScript(scriptPath),
       ),
     );
 
