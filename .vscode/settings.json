@@ -4,5 +4,9 @@
       "fileMatch": ["/src/*.meta.json"],
       "url": "/metadata.schema.json"
     }
-  ]
+  ],
+  "search.exclude": {
+    "dist": true,
+    "js": true
+  }
 }
