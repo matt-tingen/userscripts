@@ -30,12 +30,14 @@
       "type": "array",
       "description": "Dependencies used by the userscript.",
       "default": [],
+      "minItems": 1,
       "uniqueItems": true,
       "items": {
         "type": "string",
         "examples": [
-          "https://code.jquery.com/jquery-3.3.1.slim.min.js",
-          "/utils/general.js"
+          "./index.js",
+          "/utils/general.js",
+          "https://code.jquery.com/jquery-3.3.1.slim.min.js"
         ],
         "format": "uri-reference"
       }

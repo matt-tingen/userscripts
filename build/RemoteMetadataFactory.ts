@@ -2,8 +2,8 @@ import MetadataFactory from './MetadataFactory';
 import Userscript from './Userscript';
 
 class RemoteMetadataFactory extends MetadataFactory {
-  constructor(private baseRepoUrl: string) {
-    super();
+  constructor(rootPath: string, private baseRepoUrl: string) {
+    super(rootPath);
   }
 
   resolveAppUrl(...parts: string[]) {
@@ -14,7 +14,6 @@ class RemoteMetadataFactory extends MetadataFactory {
     return {
       ...metadata,
       downloadURL: this.resolveAppUrl('dist', `${name}.user.js`),
-      require: [...metadata.require, `/src/${name}/index.js`],
     };
   }
 }

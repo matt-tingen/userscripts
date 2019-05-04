@@ -72,7 +72,7 @@ const sourcePath = path.resolve(rootPath, 'src');
 const baseRepoUrl = getRepoUrl();
 
 const metadataFactories: Record<string, MetadataFactory> = {
-  '': new RemoteMetadataFactory(baseRepoUrl),
+  '': new RemoteMetadataFactory(rootPath, baseRepoUrl),
   local: new LocalMetadataFactory(rootPath),
 };
 
