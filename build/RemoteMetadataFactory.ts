@@ -2,12 +2,16 @@ import MetadataFactory from './MetadataFactory';
 import Userscript from './Userscript';
 
 class RemoteMetadataFactory extends MetadataFactory {
-  constructor(rootPath: string, private baseRepoUrl: string) {
-    super(rootPath);
+  constructor(
+    localRepoPath: string,
+    localSourcePath: string,
+    private remoteRepoUrl: string,
+  ) {
+    super(localRepoPath, localSourcePath);
   }
 
   resolveAppUrl(...parts: string[]) {
-    return [this.baseRepoUrl, ...parts].join('/');
+    return [this.remoteRepoUrl, ...parts].join('/');
   }
 
   prepare({ metadata, name }: Userscript) {

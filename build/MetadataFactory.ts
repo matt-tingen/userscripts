@@ -5,20 +5,24 @@ abstract class MetadataFactory {
   abstract resolveAppUrl(...parts: string[]): string;
   protected abstract prepare(userscript: Userscript): Metadata;
 
-  constructor(protected rootPath: string) {}
+  constructor(
+    protected localRepoPath: string,
+    protected localSourcePath: string,
+  ) {}
 
   private processRequire({ metadataPath }: Userscript, url: string) {
-    if (!/^\.?\//.test(url)) {
+    const [firstPart, ...parts] = url.split('/');
+
+    if (!['', '.'].includes(firstPart)) {
       return url;
     }
 
-    const parts = url.split('/').slice(1);
+    const basePath = path.relative(
+      this.localRepoPath,
+      firstPart === '.' ? path.dirname(metadataPath) : this.localSourcePath,
+    );
 
-    if (url.startsWith('./')) {
-      parts.unshift(path.relative(this.rootPath, path.dirname(metadataPath)));
-    }
-
-    return this.resolveAppUrl(...parts);
+    return this.resolveAppUrl(basePath, ...parts);
   }
 
   build(userscript: Userscript): Metadata {

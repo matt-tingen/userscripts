@@ -4,7 +4,7 @@ import Userscript from './Userscript';
 
 class LocalMetadataFactory extends MetadataFactory {
   resolveAppUrl(...parts: string[]) {
-    return `file://${path.resolve(this.rootPath, ...parts)}`;
+    return `file://${path.resolve(this.localRepoPath, ...parts)}`;
   }
 
   prepare({ metadata }: Userscript) {
