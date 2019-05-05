@@ -132,7 +132,7 @@
   const removeDiffNotation = line => {
     const firstTextNode = line.childNodes[0];
     const newTextNode = document.createTextNode(
-      firstTextNode.wholeText.slice(1),
+      ' ' + firstTextNode.wholeText.slice(1),
     );
     line.replaceChild(newTextNode, firstTextNode);
   };
