@@ -1,5 +1,5 @@
 (function() {
-  const { waitForClass } = window.__MJT_USERSCRIPTS__.utils;
+  const { waitForClass, addStyles } = window.__MJT_USERSCRIPTS__.utils;
 
   const REPO_PATH = location.pathname.match(/^(?:\/[^\/]+){2}/)[0];
   // The official API (https://api.bitbucket.org/2.0/) requires auth. This
@@ -8,7 +8,7 @@
 
   const ICON_SIZE = 10;
   const TITLE = 'View blame prior to this change';
-  const styles = `
+  addStyles(`
   .mjt-transitive-diff {
     display: block;
     height: ${ICON_SIZE}px;
@@ -22,9 +22,7 @@
     position: relative;
     top: ${-ICON_SIZE / 2}px;
     background-size: ${ICON_SIZE}px;
-  }
-  `;
-  $('head').append(`<style type="text/css">${styles}</style>`);
+  }`);
 
   const commitInfoCache = {};
 
@@ -32,12 +30,6 @@
     if (!commitInfoCache[hash]) {
       const response = await fetch(`${API_BASE}/commit/${hash}`);
       commitInfoCache[hash] = response.json();
-      // commitInfoCache[hash] = {
-      //   parentHash: parseHashFromUrl(
-      //     doc.find('.commit-parents a:first-of-type').attr('href'),
-      //   ),
-      //   commitMessage: doc.find('.commit-message > p:first-child').text(),
-      // };
     }
 
     return await commitInfoCache[hash];
@@ -180,4 +172,50 @@
         });
     },
   );
+
+  // Sum up change summaries in PRs
+  $('#pr-tab-content').arrive('#commit-files-summary', () => {
+    const sum = values => values.reduce((total, value) => total + value, 0);
+    const sumLines = elements =>
+      sum(elements.toArray().map(n => parseInt(n.textContent)));
+    const added = sumLines($('.lines-added'));
+    const removed = sumLines($('.lines-removed'));
+
+    addStyles(`
+      .mjt-change-summary {
+        margin-left: 10px;
+        border-left: 1px solid #DFE1E6;
+        padding-left: 10px;
+        display: flex;
+        align-items: center;
+      }
+      .mjt-lines-removed, .mjt-lines-added {
+        font-family: monospace;
+        font-size: 12px;
+        height: 16px;
+        line-height: 1.33333333;
+        padding: 0 5px;
+        text-align: center;
+        min-width: 40px;
+      }
+      .mjt-lines-added {
+        border-radius: 3px 0 0 3px;
+        background-color: #cfc;
+        color: #399839;
+      }
+      .mjt-lines-removed {
+        border-radius: 0 3px 3px 0;
+        background-color: #fdd;
+        color: #c33;
+        margin-left: 3px;
+      }
+    `);
+    const combined = $(`
+      <div class="mjt-change-summary">
+        <span class="mjt-lines-added">+${added}</span>
+        <span class="mjt-lines-removed">${removed}</span>
+      </div>`);
+
+    $('.compare-widget-container').after(combined);
+  });
 })();

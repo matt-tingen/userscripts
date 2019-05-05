@@ -27,9 +27,17 @@ window.__MJT_USERSCRIPTS__ = {
       });
     };
 
+    const addStyles = styles => {
+      const styleSheet = document.createElement('style');
+      styleSheet.type = 'text/css';
+      styleSheet.innerText = styles;
+      document.head.appendChild(styleSheet);
+    };
+
     return {
       includesClass,
       waitForClass,
+      addStyles,
     };
   })(),
 };
