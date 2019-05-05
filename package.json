@@ -11,7 +11,8 @@
     "validate": "ajv -s metadata.schema.json -d 'src/**/*.meta.json'",
     "compile:package": "json-ts package.json --prefix '' --rootName 'PackageInfo' > package.d.ts",
     "compile": "yarn compile:package && tsc",
-    "build": "yarn compile && node js/index.js",
+    "clean": "rm -rf dist && mkdir dist",
+    "build": "yarn compile && yarn clean && node js/index.js",
     "start": "yarn compile && nodemon --watch src --watch utils js/index.js"
   },
   "devDependencies": {
