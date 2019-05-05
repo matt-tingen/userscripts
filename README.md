@@ -8,7 +8,10 @@ Install a userscript extension such as [Tampermonkey](https://chrome.google.com/
 
 Add userscripts to the extension using the files in the `dist` folder. Clicking the "Raw" button on a userscript GitHub page may cause the extension to prompt you to install. If not, the contents of the file can be copied a new userscript in the extension.
 
-**Warning**: These scripts are intended for my personal use and will auto-update which is a security risk if you don't fully trust me. To avoid this, configure your extension not to update required scripts or add the commit hash to each `@require` within the repo e.g.
+**Warning**: These scripts are intended for my personal use and will auto-update which is a security risk if you don't fully trust me. To avoid this, there are two options:
+
+1. Configure your extension not to update external scripts. For instance, in TamperMonkey, set the "Update interval" under "Externals" to "never".
+1. Add the commit hash to each `@require` within the repo e.g.
 
 ```diff
 - // @require      https://raw.githubusercontent.com/matt-tingen/userscripts/master/src/netflix/index.js
