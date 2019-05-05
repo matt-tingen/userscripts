@@ -1,0 +1,7 @@
+{
+  "name": "BitBucket Diff",
+  "description": "Drop the +/- from diff lines to simplify copying",
+  "match": ["https://bitbucket.org/*"],
+  "version": "1.0",
+  "require": ["/utils/general.js", "./diff.js"]
+}

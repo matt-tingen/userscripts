@@ -1,8 +1,13 @@
 import path from 'path';
+import capitalize from './capitalize';
 
 class Userscript {
   private static getName(metadataPath: string) {
-    return path.basename(metadataPath, '.meta.json').toLowerCase();
+    const parts = path.dirname(metadataPath).split('/');
+    const site = parts[parts.length - 1];
+    const feature = path.basename(metadataPath, '.meta.json');
+
+    return feature === site ? site : site + capitalize(feature);
   }
 
   static isScriptInternal(url: string) {

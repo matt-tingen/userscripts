@@ -1,0 +1,7 @@
+{
+  "name": "BitBucket Transitive Blame",
+  "description": "Transitive blame UI",
+  "match": ["https://bitbucket.org/*"],
+  "version": "1.0",
+  "require": ["./blame.js"]
+}
