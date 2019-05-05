@@ -143,38 +143,52 @@
   );
 
   // Word diffing occurs in JS and overwrites the lines' text.
-  waitForClass(
-    'word-diff',
-    $('.diff-content-container').toArray(),
-    container => {
-      //  The word diff processing works by finding the deletion -> addition
-      //  transition and re-adds the +/- symbol to all contiguous diff lines.
-      const transitionPoints = $(container).find(
-        '.udiff-line.deletion:not(.conflict)+.addition:not(.conflict)',
-      );
-      const affectedLines = transitionPoints;
-
-      transitionPoints.each((i, el) => {
-        const transitionPoint = $(el);
-
-        affectedLines.push(
-          ...transitionPoint.prevUntil('.common, .addition').toArray(),
+  const applyDiffTransform = () => {
+    // The page re-applies the +/- symbol as part of its word diffing in JS.
+    // This class signifies that that process is complete.
+    waitForClass(
+      'word-diff',
+      $('.diff-content-container').toArray(),
+      container => {
+        //  The word diff processing works by finding the deletion -> addition
+        //  transition and re-adds the +/- symbol to all contiguous diff lines.
+        const transitionPoints = $(container).find(
+          '.udiff-line.deletion:not(.conflict)+.addition:not(.conflict)',
         );
-        affectedLines.push(
-          ...transitionPoint.nextUntil('.common, .deletion').toArray(),
-        );
-      });
+        const affectedLines = transitionPoints;
 
-      $(affectedLines)
-        .find('.source')
-        .each((i, line) => {
-          removeDiffNotation(line);
+        transitionPoints.each((i, el) => {
+          const transitionPoint = $(el);
+
+          affectedLines.push(
+            ...transitionPoint.prevUntil('.common, .addition').toArray(),
+          );
+          affectedLines.push(
+            ...transitionPoint.nextUntil('.common, .deletion').toArray(),
+          );
         });
-    },
-  );
+
+        $(affectedLines)
+          .find('.source')
+          .each((i, line) => {
+            removeDiffNotation(line);
+          });
+      },
+    );
+  };
+
+  // Much of the PR contents are loaded asyncronously into this container.
+  const pullRequestContent = $('#pr-tab-content');
+
+  if (pullRequestContent.length) {
+    pullRequestContent.arrive('#changeset-diff', applyDiffTransform);
+  } else {
+    // Other diff pages such as the commit page contain diffs on load.
+    applyDiffTransform();
+  }
 
   // Sum up change summaries in PRs
-  $('#pr-tab-content').arrive('#commit-files-summary', () => {
+  pullRequestContent.arrive('#commit-files-summary', () => {
     const sum = values => values.reduce((total, value) => total + value, 0);
     const sumLines = elements =>
       sum(elements.toArray().map(n => parseInt(n.textContent)));
