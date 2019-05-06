@@ -129,10 +129,10 @@
   });
 
   // Drop the +/- from diff lines to simplify copying.
-  const removeDiffNotation = line => {
+  const removeFirstCharacter = line => {
     const firstTextNode = line.childNodes[0];
     const newTextNode = document.createTextNode(
-      ' ' + firstTextNode.wholeText.slice(1),
+      firstTextNode.wholeText.slice(1),
     );
     line.replaceChild(newTextNode, firstTextNode);
   };
@@ -140,9 +140,7 @@
   // Word diffing occurs in JS and overwrites the lines' text.
   const applyDiffTransform = () => {
     // Not all lines will be processed for word-diff so do an initial pass
-    $('.udiff-line:not(.common) > .source').each((i, line) =>
-      removeDiffNotation(line),
-    );
+    $('.udiff-line > .source').each((i, line) => removeFirstCharacter(line));
 
     // The page re-applies the +/- symbol as part of its word diffing in JS.
     // This class signifies that that process is complete.
@@ -171,7 +169,7 @@
         $(affectedLines)
           .find('.source')
           .each((i, line) => {
-            removeDiffNotation(line);
+            removeFirstCharacter(line);
           });
       },
     );
