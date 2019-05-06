@@ -137,13 +137,13 @@
     line.replaceChild(newTextNode, firstTextNode);
   };
 
-  // Not all lines will be processed for word-diff so do an initial pass
-  $('.udiff-line:not(.common) > .source').each((i, line) =>
-    removeDiffNotation(line),
-  );
-
   // Word diffing occurs in JS and overwrites the lines' text.
   const applyDiffTransform = () => {
+    // Not all lines will be processed for word-diff so do an initial pass
+    $('.udiff-line:not(.common) > .source').each((i, line) =>
+      removeDiffNotation(line),
+    );
+
     // The page re-applies the +/- symbol as part of its word diffing in JS.
     // This class signifies that that process is complete.
     waitForClass(
