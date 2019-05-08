@@ -191,7 +191,7 @@
     const sumLines = elements =>
       sum(elements.toArray().map(n => parseInt(n.textContent)));
     const added = sumLines($('.lines-added'));
-    const removed = sumLines($('.lines-removed'));
+    const removed = Math.abs(sumLines($('.lines-removed')));
 
     addStyles(`
       .mjt-change-summary {
@@ -225,7 +225,7 @@
     const combined = $(`
       <div class="mjt-change-summary">
         <span class="mjt-lines-added">+${added}</span>
-        <span class="mjt-lines-removed">${removed}</span>
+        <span class="mjt-lines-removed">-${removed}</span>
       </div>`);
 
     $('.compare-widget-container').after(combined);
