@@ -27,3 +27,5 @@ To add a new userscript, create a `.meta.json` file within `src`. Editors such a
 - Relative paths which are resolve from the `.meta.json` file e.g. `./index.js`
 
 Use `yarn start` and the resulting `dist/*.local.user.js` files for testing.
+
+In Chrome, the "Allow access to file URLs" option will also need to be enabled for the userscript extension.
