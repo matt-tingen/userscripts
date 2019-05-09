@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name BitBucket
 // @namespace https://github.com/matt-tingen/userscripts
-// @version 3.5
+// @version 3.6
 // @author Matt Tingen
 // @description Transitive blame UI
 // @downloadURL https://raw.githubusercontent.com/matt-tingen/userscripts/master/dist/bitbucket.user.js

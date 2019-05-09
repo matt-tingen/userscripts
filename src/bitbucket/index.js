@@ -85,11 +85,11 @@
                 trigger: 'manual',
               });
 
-            if (hoverTimeout) {
-              link.tipsy('show');
-            }
-
             isTooltipInitialized = true;
+          }
+
+          if (hoverTimeout) {
+            link.tipsy('show');
           }
         }, 100);
       },
