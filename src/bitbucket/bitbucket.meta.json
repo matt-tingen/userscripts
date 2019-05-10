@@ -2,7 +2,7 @@
   "name": "BitBucket",
   "description": "Transitive blame UI",
   "match": ["https://bitbucket.org/*"],
-  "version": "3.7",
+  "version": "3.8",
   "require": [
     "https://cdnjs.cloudflare.com/ajax/libs/arrive/2.4.1/arrive.min.js",
     "/utils/general.js",

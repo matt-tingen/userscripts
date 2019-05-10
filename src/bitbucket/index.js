@@ -1,7 +1,36 @@
 (function() {
   const { waitForClass, addStyles } = window.__MJT_USERSCRIPTS__.utils;
 
-  const REPO_PATH = location.pathname.match(/^(?:\/[^\/]+){2}/)[0];
+  const parseUrl = () => {
+    let filePath;
+    let fileName;
+    let hash;
+
+    const parts = location.pathname.split('/');
+    const repoPath = parts.slice(0, 3).join('/');
+
+    if (parts[3] === 'annotate') {
+      hash = parts[4];
+      filePath = parts.slice(5).join('/');
+      fileName = parts[parts.length - 1];
+    }
+
+    return { repoPath, filePath, fileName, hash };
+  };
+
+  let parsedUrl;
+  try {
+    parsedUrl = parseUrl();
+  } catch (ignore) {
+    return;
+  }
+
+  const {
+    repoPath: REPO_PATH,
+    filePath: FILE_PATH,
+    fileName: FILE_NAME,
+    hash: HASH,
+  } = parsedUrl;
   // The official API (https://api.bitbucket.org/2.0/) requires auth. This
   // undocumented API appears to use the user's cookies.
   const API_BASE = `https://bitbucket.org/!api/2.0/repositories${REPO_PATH}`;
@@ -24,15 +53,36 @@
     background-size: ${ICON_SIZE}px;
   }`);
 
-  const commitInfoCache = {};
+  const fetchJson = async url => {
+    const response = await fetch(url);
+    return await response.json();
+  };
+  const fetchApi = path => fetchJson(`${API_BASE}/${path}`);
 
+  const commitInfoCache = {};
   const getCommitInfo = async hash => {
     if (!commitInfoCache[hash]) {
-      const response = await fetch(`${API_BASE}/commit/${hash}`);
-      commitInfoCache[hash] = response.json();
+      commitInfoCache[hash] = await fetchApi(`commit/${hash}`);
     }
 
     return await commitInfoCache[hash];
+  };
+
+  const getFileDiffStat = async hash => {
+    let fileDiffStat;
+    let diffStat;
+
+    do {
+      diffStat = await (diffStat
+        ? fetchJson(diffStat.next)
+        : fetchApi(`diffstat/${HASH}..${hash}`));
+
+      fileDiffStat = diffStat.values.find(
+        value => value.new && value.new.path === FILE_PATH,
+      );
+    } while (!fileDiffStat && diffStat.next);
+
+    return fileDiffStat;
   };
 
   const parseHashFromUrl = url => url.match(/\/([a-f\d]{40})(?:$|\/|\?)/)[1];
@@ -64,6 +114,34 @@
     )
     .attr('title', TITLE)
     .text(TITLE);
+
+  const pendHashButton = button => {
+    button
+      .attr('disabled', true)
+      .find('.aui-icon')
+      .removeClass('aui-iconfont-devtools-browse-up')
+      .addClass('aui-icon-wait');
+
+    button.children().attr('title', 'Loading...');
+  };
+
+  const buttonsByHash = {};
+  const disableHashButtons = hash => {
+    const buttons = $(buttonsByHash[hash]);
+
+    buttons
+      .find('.aui-icon')
+      .removeClass('aui-icon-wait')
+      .addClass('aui-iconfont-devtools-browse-up');
+
+    buttons
+      .attr('disabled', true)
+      .children()
+      .attr(
+        'title',
+        'The blame could not be tracked past this commit. This is probably due to a rename.',
+      );
+  };
 
   const annotations = $('.annotationdiv > pre > span');
 
@@ -106,24 +184,35 @@
       .addClass('aui-button aui-button-link')
       .append(icon.clone())
       .click(async function() {
-        $(this)
-          .attr('disabled', true)
-          .find('.aui-icon')
-          .removeClass('aui-iconfont-devtools-browse-up')
-          .addClass('aui-icon-wait');
+        const button = $(this);
+        pendHashButton(button);
 
-        const parentHash = (await getCommitInfo(hash)).parents[0].hash;
-        const lineNumber = getLineNumber(annotation);
+        const commit = await getCommitInfo(hash);
+        const parentHash = commit.parents[0].hash;
+        const diffStat = await getFileDiffStat(parentHash);
+        const { status } = diffStat;
 
-        // Clicking the line number adds the appropriate hash to the URL which
-        // will be preserved when the pathname is replaced.
-        $(`.linenodiv > pre > a:nth-child(${lineNumber})`).click();
+        if (status === 'added') {
+          disableHashButtons(hash);
+        } else {
+          const lineNumber = getLineNumber(annotation);
 
-        location.pathname = location.pathname.replace(
-          /\/annotate\/[^\/]+/,
-          `/annotate/${parentHash}`,
-        );
+          // Clicking the line number adds the appropriate hash to the URL which
+          // will be preserved when the pathname is replaced.
+          $(`.linenodiv > pre > a:nth-child(${lineNumber})`).click();
+
+          location.href = `${
+            location.host
+          }${REPO_PATH}/annotate/${parentHash}/${
+            status === 'renamed' ? diffStat.old.path : FILE_PATH
+          }#${FILE_NAME}-${lineNumber}`;
+        }
       });
+
+    if (!buttonsByHash[hash]) {
+      buttonsByHash[hash] = [];
+    }
+    buttonsByHash[hash].push(transitiveBlameButton[0]);
 
     annotation.append(' ', transitiveBlameButton);
   });
