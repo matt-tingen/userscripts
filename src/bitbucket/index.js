@@ -128,6 +128,72 @@
     annotation.append(' ', transitiveBlameButton);
   });
 
+  // Highlight row upon hovering.
+  const getVerticalDistance = (...nodes) => {
+    const [a, b] = nodes.map(node => node.getBoundingClientRect().top);
+    return b - a;
+  };
+
+  const lineNodes = $('.linenodiv a:nth-child(-n+2)');
+  const fileViewer = $('.file-source');
+  const lineOuterHeight = getVerticalDistance(...lineNodes.toArray());
+  const lineInnerHeight = lineNodes.height();
+  // const fileViewerTop = fileViewer[0].getBoundingClientRect().top;
+  const fileViewerPadding = parseFloat(
+    $('.linenos')
+      .css('padding-top')
+      .replace('px', ''),
+  );
+
+  const lineHighlight = $('<div>').css({
+    width: '100%',
+    height: lineInnerHeight,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    background: 'black',
+    opacity: 0.08,
+    pointerEvents: 'none',
+  });
+  fileViewer.after(lineHighlight);
+
+  const lineHighlightOffset = getVerticalDistance(
+    lineHighlight[0],
+    lineNodes[0],
+  );
+  lineHighlight.hide();
+
+  let prevLine = null;
+  const setActiveLine = line => {
+    if (line !== prevLine) {
+      prevLine = line;
+      lineHighlight.toggle(!!line);
+
+      if (line) {
+        lineHighlight.css(
+          'top',
+          lineHighlightOffset + (line - 1) * lineOuterHeight,
+        );
+      }
+    }
+  };
+
+  fileViewer.mouseleave(() => {
+    setActiveLine(null);
+  });
+
+  fileViewer.mousemove(({ clientY }) => {
+    activeLine =
+      Math.floor(
+        (clientY -
+          fileViewerPadding -
+          fileViewer[0].getBoundingClientRect().top) /
+          lineOuterHeight,
+      ) + 1;
+
+    setActiveLine(activeLine || null);
+  });
+
   // Drop the +/- from diff lines to simplify copying.
   const removeFirstCharacter = line => {
     const firstTextNode = line.childNodes[0];
