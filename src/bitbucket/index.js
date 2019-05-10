@@ -183,7 +183,7 @@
   });
 
   fileViewer.mousemove(({ clientY }) => {
-    activeLine =
+    const activeLine =
       Math.floor(
         (clientY -
           fileViewerPadding -
