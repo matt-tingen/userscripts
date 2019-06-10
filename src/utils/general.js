@@ -34,10 +34,23 @@ window.__MJT_USERSCRIPTS__ = {
       document.head.appendChild(styleSheet);
     };
 
+    const templateTagNoop = (strings, ...keys) => {
+      let combined = '';
+
+      for (let i = 0; i < strings.length; i++) {
+        combined += strings[i] + (keys[i] || '');
+      }
+
+      return combined;
+    };
+
+    // Use as a template tag for syntax highlighting.
+    const css = (...args) => addStyles(templateTagNoop(...args));
+
     return {
       includesClass,
       waitForClass,
-      addStyles,
+      css,
     };
   })(),
 };

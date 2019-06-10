@@ -1,5 +1,5 @@
 (function() {
-  const { waitForClass, addStyles } = window.__MJT_USERSCRIPTS__.utils;
+  const { waitForClass, css } = window.__MJT_USERSCRIPTS__.utils;
 
   const parseUrl = () => {
     let filePath;
@@ -37,21 +37,22 @@
 
   const ICON_SIZE = 10;
   const TITLE = 'View blame prior to this change';
-  addStyles(`
-  .mjt-transitive-diff {
-    display: block;
-    height: ${ICON_SIZE}px;
-    width: ${ICON_SIZE}px;
-  }
-  .mjt-transitive-diff:before {
-    font-size: ${ICON_SIZE}px;
-    margin-top: ${-ICON_SIZE}px;
-  }
-  .mjt-transitive-diff.aui-icon-wait {
-    position: relative;
-    top: ${-ICON_SIZE / 2}px;
-    background-size: ${ICON_SIZE}px;
-  }`);
+  css`
+    .mjt-transitive-diff {
+      display: block;
+      height: ${ICON_SIZE}px;
+      width: ${ICON_SIZE}px;
+    }
+    .mjt-transitive-diff:before {
+      font-size: ${ICON_SIZE}px;
+      margin-top: ${-ICON_SIZE}px;
+    }
+    .mjt-transitive-diff.aui-icon-wait {
+      position: relative;
+      top: ${-ICON_SIZE / 2}px;
+      background-size: ${ICON_SIZE}px;
+    }
+  `;
 
   const fetchJson = async url => {
     const response = await fetch(url);
@@ -356,15 +357,16 @@
     const added = sumLines($('.lines-added'));
     const removed = Math.abs(sumLines($('.lines-removed')));
 
-    addStyles(`
+    css`
       .mjt-change-summary {
         margin-left: 10px;
-        border-left: 1px solid #DFE1E6;
+        border-left: 1px solid #dfe1e6;
         padding-left: 10px;
         display: flex;
         align-items: center;
       }
-      .mjt-lines-removed, .mjt-lines-added {
+      .mjt-lines-removed,
+      .mjt-lines-added {
         font-family: monospace;
         font-size: 12px;
         height: 16px;
@@ -384,7 +386,7 @@
         color: #c33;
         margin-left: 3px;
       }
-    `);
+    `;
     const combined = $(`
       <div class="mjt-change-summary">
         <span class="mjt-lines-added">+${added}</span>
