@@ -1,0 +1,7 @@
+{
+  "name": "HN Dark Mode",
+  "description": "Dark theme",
+  "match": ["https://news.ycombinator.com/*"],
+  "require": ["/utils/general.js", "./dark.js"],
+  "version": "1.0"
+}
