@@ -11,6 +11,7 @@
       --text-body: #aaa;
       --text-block: #181818;
       --text-muted: #666;
+      --text-disabled: #737373;
     }
 
     body {
@@ -51,6 +52,10 @@
     .comhead a,
     .reply a {
       color: var(--text-header) !important;
+    }
+
+    .comhead a.disabled {
+      color: var(--text-disabled) !important;
     }
 
     .commtext,

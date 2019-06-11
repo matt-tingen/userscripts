@@ -18,5 +18,27 @@
       left: 0;
       top: calc(-0.5 * var(--mjt-toggle-height));
     }
+
+    .togg.disabled {
+      pointer-events: none;
+      color: #d8d8d8 !important;
+    }
   `;
+
+  const setLoading = (id, isLoading) => {
+    const toggle = document
+      .getElementById(id)
+      .getElementsByClassName('togg')[0];
+    toggle.classList.toggle('disabled', isLoading);
+  };
+
+  const originalToggle = window.toggle;
+
+  window.toggle = (event, id) => {
+    // The toggle code can be quite slow on mobile due to sync layout recalcs.
+    // Show an indication that is in progress.
+    setLoading(id, true);
+    originalToggle(event, id);
+    setLoading(id, false);
+  };
 })();
