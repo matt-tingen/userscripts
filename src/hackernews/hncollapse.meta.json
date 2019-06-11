@@ -1,0 +1,7 @@
+{
+  "name": "HN Comment Collapse",
+  "description": "Touch friendly comment collapsing",
+  "match": ["https://news.ycombinator.com/item/*"],
+  "require": ["/utils/general.js", "./collapse.js"],
+  "version": "1.0"
+}
