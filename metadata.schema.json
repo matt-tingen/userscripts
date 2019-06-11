@@ -26,6 +26,17 @@
         "format": "uri"
       }
     },
+    "run-at": {
+      "type": "string",
+      "description": "When in the document lifecycle the script will be executed",
+      "enum": [
+        "document-start",
+        "document-body",
+        "document-end",
+        "document-idle",
+        "context_menu"
+      ]
+    },
     "require": {
       "type": "array",
       "description": "Dependencies used by the userscript.",
