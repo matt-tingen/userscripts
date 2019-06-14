@@ -2,7 +2,7 @@
   "name": "HN Dark Mode",
   "description": "Dark theme",
   "match": ["https://news.ycombinator.com/*"],
-  "run-at": "document-start",
+  "run-at": "document-body",
   "require": ["/utils/general.js", "./dark.js"],
-  "version": "1.2"
+  "version": "1.3"
 }
