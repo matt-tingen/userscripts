@@ -6,7 +6,7 @@ This is a collection of userscripts I've made to fix annoyances with various web
 
 Install a userscript extension such as [Tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo) for Chrome.
 
-Add userscripts to the extension using the files in the `dist` folder. Clicking the "Raw" button on a userscript GitHub page may cause the extension to prompt you to install. If not, the contents of the file can be copied a new userscript in the extension.
+Add userscripts to the extension using the files in the `dist` folder. Clicking the "Raw" button on a userscript GitHub page may cause the extension to prompt you to install. If not, the contents of the file can be copied into a new userscript in the extension.
 
 **Warning**: These scripts are intended for my personal use and will auto-update which is a security risk if you don't fully trust me. To avoid this, there are two options:
 
