@@ -24,7 +24,7 @@ To add a new userscript, create a `.meta.json` file within `src`. Editors such a
 
 - Absolute URLs e.g. `https://example.com/main.js`
 - Anchored paths which are resolved from `src` e.g. `/utils/general.js`
-- Relative paths which are resolve from the `.meta.json` file e.g. `./index.js`
+- Relative paths which are resolved from the `.meta.json` file e.g. `./index.js`
 
 Use `yarn start` and the resulting `dist/*.local.user.js` files for testing.
 
